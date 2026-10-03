@@ -1,7 +1,3 @@
-function sendMessage() {
-  alert("Welcome to Kaakyire Learning AI!");
-}
-
 const sedBtn= document.getElementByld("send-btn");
 const userInput= document.getElementByld("user-input);
 const chatBox = cdocument.getElementByld("chat-box");                                        
