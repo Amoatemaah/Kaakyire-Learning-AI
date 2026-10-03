@@ -1,7 +1,12 @@
-# Kaakyire-Learning-AI
-Is an Educational web app that helps students learn, study, and understand difficult subjects. AI-Powered Learning platform designed to provide personalized education experiences for students, professionals, and lifelong learners.
-The app uses artificial intelligence  to provide personalized learning support, explanations, educational resources, and assistance with homework and assignments.
-Kaakyire-Learning is designed to make learning more accessible, engaging, and easier for students.
+Kaakyire-Learning-AI
+The app uses artificial intelligence to provide personalized learning support, explanations, educational resources, and assistance with homework and assignments. Kaakyire-Learning is designed to make learning more accessible, engaging, and easier for students.
+
+Our focuses is to make it a simple educational AI where students can:
+Learn and understand didfficult subjects
+Get help with homework and assignments
+Ask questions and receive expplanation
+Study and practice
+Get personalized learning support
 
 Who can use Kaakyire-Learning-AI?
 Students-get help understanding lessons, studying, practicing, and working on assignments.
@@ -24,8 +29,10 @@ Homework and assignment support
 Study assistance
 Subject-based learning
 Student-friendly interface
-Responsive design for phones, tablets, and t
-Easy access without requiring students to sign in before using the AI learning assistant
+Kaakyire Learning AI design, to work on Smartphones
+Tablets, iPhone, Android, iPad, Android tablets
+Laptops, Windows, Mac, Chromebook, and Desktop computer
+Easy access without requiring students to sign in before using Kaakyire Learning-AI
 
 Project Goal
 the goal of Kaakyire Learning AI is to artificial intelligence to make learning easier,
@@ -55,7 +62,6 @@ Mission
 Kaakyire Learning AI aims to make learning easier, accessible, 
 and more engaging for students by providing helpful, personalized educational
 support through artificial intelligence
-
 
 License
 
