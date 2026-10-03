@@ -1,18 +1,30 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #f4f7fa;
+  background-color: #f4f7f4;
+  text-align: center
   margin: 0;
   padding: 20px;
 }
 
-hl {
-  color: #0078d4;
-  text-align: center;
+header {
+  background: #0078d7;
+  color: white;
+  padding: 20px;
 }
 
 .chat-container {
-  max.Width: {
+    max.Width: 600px; 
     margin: auto;
     background: white;
     padding: 20px;
     border-radius: 10px;
+}
+
+#chat-box {
+  min-height: 200px;
+  margin-bottom: 15px
+}
+input {
+  Width: 70
+  padding: 10x;
+}
