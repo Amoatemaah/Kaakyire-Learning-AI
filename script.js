@@ -9,7 +9,7 @@ sendBtn.addEventListener("click", ()
 =? {
     const message =
   userInput.value.trim();
-       if (message --- "") {
+       if (message --- "") 
           return;
 }
   const userMessage =
