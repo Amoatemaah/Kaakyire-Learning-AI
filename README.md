@@ -1,5 +1,5 @@
 Kaakyire Learning AI
-About: Kaakyire Learning AI is an educational artificial intelligence learning assistant designed to help students learn, study, and better understand their school subjects. It provide friendly and simple learning support for students who need help understanding lessons, homework, assignments, and difficult topics 
+Kaakyire Learning AI is an educational artificial intelligence learning assistant designed to help students learn, study, and better understand their school subjects. It provide friendly and simple learning support for students who need help understanding lessons, homework, assignments, and difficult topics 
 
 Our Goals: ls to make Kaakyire Learning AI, easier, clearer, more accessible, and more engaging for every students.
 Kaakkyir Learning AI uses artificial intelligence to provide step-by-step explanation and learning support.
