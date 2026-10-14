@@ -30,7 +30,7 @@ Vercel
 
 Project Structure
 
-text Kaakyire Learning-ai/ app/ components/ lib/ database/ public/ docs/ README.md env.local
+text Kaakyire Learning-AI/ app/ components/ lib/ database/ public/ docs/ README.md env.local
 
 Roadmap
 
