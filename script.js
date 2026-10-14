@@ -1,34 +1,50 @@
-const questionInput = document.getElementById("questionInput");
-const askButton = document.getElementById("askButton");
-const answer = document.getElementById("answer");
+ody {
+  font-family: Arial, sans-serif;
+  background-color: #f4f7f4;
+  margin: 0;
+  padding: 0
+}
 
-askButton.addEventListener("click", function () {
-  const question = questionInput.value.trim();
+hearder {
+  color: white;
+  text-align: center;
+  padding: 20px;
+  background-color: #4CAF50;
+}
 
-  if (question === "") {
-    answer.textContent = "Please enter a school question.";
-    return;
-  }
+.chat-container {
+  max-width: 800px;
+  margin: 20px auto;
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+}
 
-  const lowerQuestion = question.toLowerCase();
+.chat-bot {
+  height: 400px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+}
 
-  if (lowerQuestion.includes("photosynthesis")) {
-    answer.textContent =
-      "Photosynthesis is the process plants use to make their own food. Plants use sunlight, water, and carbon dioxide to make food and release oxygen.";
-  } else if (lowerQuestion.includes("math") || lowerQuestion.includes("mathematics")) {
-    answer.textContent =
-      "I can help you with mathematics. Enter a math problem, and we can work through it step by step.";
-  } else if (lowerQuestion.includes("science")) {
-    answer.textContent =
-      "Science helps us understand the world around us. Ask me about a science topic, and I can explain it in simple steps.";
-  } else if (lowerQuestion.includes("english")) {
-    answer.textContent =
-      "I can help you understand English, including reading, writing, grammar, vocabulary, and comprehension.";
-  } else {
-    answer.textContent =
-      "Thank you for your question! Kaakyire Learning AI is here to help you understand your schoolwork step by step.";
-  }
-});
+input {
+  width: 80%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
 
+button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
 
-  
+buttom:hover {
+
+  background-color: #08660c
+}
