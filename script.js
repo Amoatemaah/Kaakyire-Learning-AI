@@ -8,7 +8,7 @@ function sendMessage() {}
       return;
     }
 
-     // Display user message 
+      Display user message 
       chatBox.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
 
       //Simple AI response
