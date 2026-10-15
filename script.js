@@ -1,7 +1,8 @@
- /* =====================================
+/* =====================================
    KAAKYIRE LEARNING AI
    Student Learning Assistant
-   ===================================== */
+   ===================================== */{
+function sendMessage() 
 const questionInput = document.getElementById("question");
 const askButton = document.getElementById("ask-button");
 const answerArea = document.getElementById("answer");
