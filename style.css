@@ -5,44 +5,42 @@ margin: 0;
 padding: 0;
 }
 
-header {
-background-color: #4CAF50;
-color: white;
-text-align: center;
-padding: 20px;
-}
-
-.chat-container {
-  max-width: 800px;
-  margin: 20px auto;
+.container {
+  max-width: 700px;
+  margin: 500px auto;
   background-color: white;
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-chat-box {
-  height: 300px;
-  border: 1px solid #ccc;
-  padding: 10px;
-  margin-bottom: 10px;
-  overflow-y: auto;
+hl 
+color: #0078d7;
 }
 
 input {
-  width: 75%
+  width: 70%;
   padding 10px;
+  font-size: 16px;
 }
 
 button {
   padding: 10px 20px;
-  background-color: #4CAF50;
+  background-color: #0078d7;
   color: white;
   border: none;
+  border-radius: 5px;
   cursor: pointer;
 }
 
-button {
-  background-color: #45a049;
+button:hover {
+  background-color: #005ea6;
+}
+
+#answer {
+  margin-top: 20px;
+  paddind: 15px;
+  background: eef3f3;
+  border-radius: 5px;
 }
 
