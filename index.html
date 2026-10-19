@@ -3,188 +3,130 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Kaakyire Learning AI</title>
-  <meta
-    name="description"
-    content="Kaakyire Learning AI helps students learn school subjects with clear explanations and step-by-step guidance."
-  >
 
   <style>
-    :root {
-      --primary: #2457c5;
-      --primary-dark: #183d91;
-      --background: #f3f6fc;
-      --surface: #ffffff;
-      --text: #17243b;
-      --muted: #63718a;
-      --border: #dce4f1;
-      --success: #147d55;
-    }
-
     * {
       box-sizing: border-box;
     }
 
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--background);
-      color: var(--text);
-      line-height: 1.6;
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+      min-height: 100vh;
     }
 
     header {
-      background: var(--primary);
+      background: #174a8b;
       color: white;
-      padding: 25px 20px;
       text-align: center;
+      padding: 28px 16px;
     }
 
     header h1 {
-      margin: 0 0 6px;
-      font-size: clamp(26px, 5vw, 38px);
+      margin: 0 0 10px;
+      font-size: 30px;
     }
 
     header p {
       margin: 0;
-      color: #edf3ff;
+      line-height: 1.6;
     }
 
     main {
-      width: min(900px, 92%);
-      margin: 28px auto;
+      width: min(720px, 92%);
+      margin: 32px auto;
     }
 
-    .panel {
-      background: var(--surface);
-      padding: 24px;
-      margin-bottom: 20px;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      box-shadow: 0 5px 18px rgba(26, 51, 94, 0.06);
-    }
-
-    h2 {
-      margin-top: 0;
-      font-size: 22px;
-    }
-
-    .muted {
-      color: var(--muted);
-    }
-
-    .choices {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 12px 0 20px;
-    }
-
-    button {
-      font: inherit;
-      cursor: pointer;
-      border-radius: 10px;
-      padding: 10px 15px;
-      border: 1px solid var(--border);
+    .learning-card {
       background: white;
-      color: var(--text);
-      transition: background 0.15s, color 0.15s;
-    }
-
-    button:hover {
-      border-color: var(--primary);
-    }
-
-    button.selected {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
+      padding: 26px;
+      border-radius: 16px;
+      box-shadow: 0 5px 20px rgba(15, 23, 42, 0.08);
     }
 
     label {
       display: block;
       font-weight: bold;
-      margin: 16px 0 8px;
+      margin: 18px 0 8px;
     }
 
-    textarea,
-    select {
+    select, textarea {
+      display: block;
       width: 100%;
       padding: 13px;
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
       font: inherit;
-      border: 1px solid var(--border);
-      border-radius: 10px;
       background: white;
-      color: var(--text);
     }
 
     textarea {
-      min-height: 120px;
+      min-height: 135px;
       resize: vertical;
+      line-height: 1.5;
     }
 
-    textarea:focus,
-    select:focus,
-    button:focus-visible {
-      outline: 3px solid #b9d0ff;
-      outline-offset: 2px;
+    select:focus, textarea:focus {
+      outline: 2px solid #60a5fa;
+      border-color: #2563eb;
     }
 
-    .ask-button {
+    button {
       width: 100%;
-      margin-top: 16px;
-      padding: 14px 18px;
-      color: white;
-      background: var(--primary);
+      padding: 15px;
+      margin-top: 18px;
       border: none;
+      border-radius: 9px;
+      background: #174a8b;
+      color: white;
+      font-size: 17px;
       font-weight: bold;
+      cursor: pointer;
     }
 
-    .ask-button:hover {
-      background: var(--primary-dark);
+    button:hover {
+      background: #103765;
     }
 
-    .ask-button:disabled {
-      opacity: 0.65;
+    button:disabled {
+      opacity: 0.6;
       cursor: wait;
     }
 
-    .answer {
-      min-height: 110px;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-      background: #f7f9fe;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 18px;
+    #status {
+      min-height: 24px;
+      margin-top: 14px;
+      color: #475569;
     }
 
-    .status {
-      color: var(--success);
-      font-size: 14px;
-      margin-top: 10px;
+    #answer {
+      margin-top: 16px;
+      padding: 18px;
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      border-radius: 8px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
     }
 
     footer {
       text-align: center;
-      color: var(--muted);
-      padding: 10px 20px 30px;
+      color: #64748b;
+      padding: 10px 16px 28px;
       font-size: 14px;
     }
 
-    @media (max-width: 600px) {
-      main {
-        width: 94%;
-        margin: 16px auto;
+    @media (max-width: 480px) {
+      header h1 {
+        font-size: 25px;
       }
 
-      .panel {
-        padding: 17px;
-      }
-
-      .choices button {
-        flex: 1 1 42%;
+      .learning-card {
+        padding: 18px;
       }
     }
   </style>
@@ -194,69 +136,56 @@
   <header>
     <h1>Kaakyire Learning AI</h1>
     <p>Your friendly learning assistant</p>
-    <p>Learn step by step. Understand with confidence.</p>
+    <p>Ask questions, understand lessons, and learn step by step.</p>
   </header>
 
   <main>
-    <section class="panel">
-      <h2>Welcome, learner!</h2>
-      <p class="muted">
-        Choose a subject, select your learning level, and type
-        a school question. You can use this page without signing in.
-      </p>
+    <section class="learning-card">
+      <h2>What would you like to learn today?</h2>
+      <p>Choose a subject and enter your question below.</p>
 
       <form id="question-form">
-        <label>1. Choose your subject</label>
-
-        <div class="choices" id="subject-choices">
-          <button type="button" data-subject="Mathematics"
-            class="selected">Mathematics</button>
-          <button type="button" data-subject="English">English</button>
-          <button type="button" data-subject="Science">Science</button>
-          <button type="button" data-subject="History">History</button>
-          <button type="button" data-subject="Geography">Geography</button>
-          <button type="button" data-subject="Social Studies">
-            Social Studies
-          </button>
-        </div>
-
-        <label for="difficulty">2. Choose your learning level</label>
-        <select id="difficulty">
-          <option value="Easy">Easy — explain simply</option>
-          <option value="Medium">Medium — explain with details</option>
-          <option value="Hard">Hard — explain in depth</option>
+        <label for="subject">School subject</label>
+        <select id="subject" name="subject">
+          <option value="Mathematics">Mathematics</option>
+          <option value="English">English</option>
+          <option value="Science">Science</option>
+          <option value="History">History</option>
+          <option value="Geography">Geography</option>
+          <option value="Social Studies">Social Studies</option>
         </select>
 
-        <label for="question">3. What would you like to learn?</label>
+        <label for="difficulty">Learning level</label>
+        <select id="difficulty" name="difficulty">
+          <option value="Easy">Easy</option>
+          <option value="Medium" selected>Medium</option>
+          <option value="Hard">Hard</option>
+        </select>
+
+        <label for="question">Your question</label>
         <textarea
           id="question"
-          placeholder="For example: Explain photosynthesis in simple words."
+          name="question"
+          placeholder="Example: What is 12 × 8? Explain your answer."
           required
         ></textarea>
 
-        <button class="ask-button" id="ask-button" type="submit">
-          Ask Kaakyire
-        </button>
+        <button id="ask-button" type="submit">Ask Kaakyire</button>
       </form>
 
-      <p class="status" id="status" aria-live="polite"></p>
-    </section>
+      <p id="status" role="status" aria-live="polite"></p>
 
-    <section class="panel">
-      <h2>Kaakyire's response</h2>
-      <div
-        class="answer"
-        id="answer"
-        role="status"
-        aria-live="polite"
-      >Hello! Choose a subject and ask your first question.</div>
+      <section aria-labelledby="answer-heading">
+        <h3 id="answer-heading">Kaakyire's Answer</h3>
+        <div id="answer" role="region" aria-live="polite">Your explanation will appear here.</div>
+      </section>
     </section>
   </main>
 
   <footer>
-    Kaakyire Learning AI · Helping learners understand, one question at a time.
+    Keep asking questions. Every question is a chance to learn!
   </footer>
 
-  <script src="script.js"></script>
+  <script src="./script.js"></script>
 </body>
 </html>
