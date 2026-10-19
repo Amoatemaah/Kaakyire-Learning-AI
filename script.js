@@ -1,592 +1,269 @@
+/* ==========================================
+   KAAKYIRE LEARNING AI
+   Frontend learning assistant
+   ========================================== */
+
 "use strict";
-// ==========================================
-// KAAKYIRE LEARNING AI
-// Educational assistant for six school subjects
-// ==========================================
 
-document.addEventListener("DOMContentLoaded", function () {
-  const askButton = document.getElementById("askButton");
-  const questionInput = document.getElementById("questionInput");
-  const answerArea =
-    document.getElementById("answerArea") ||
-    document.getElementById("response");
+// Connect JavaScript to the HTML elements.
+const questionForm = document.getElementById("question-form");
+const questionInput = document.getElementById("question");
+const askButton = document.getElementById("ask-button");
+const answerArea = document.getElementById("answer");
+const difficultySelect = document.getElementById("difficulty");
+const statusArea = document.getElementById("status");
+const subjectButtons = document.querySelectorAll("[data-subject]");
 
-  const subjectSelect = document.getElementById("subjectSelect");
-  const difficultySelect = document.getElementById("difficultySelect");
+// Remember the student's choices.
+let selectedSubject = "Mathematics";
 
-  // Find the elements used by your webpage.
-  // These alternative IDs help accommodate different HTML versions.
-  const input =
-    questionInput ||
-    document.getElementById("question") ||
-    document.getElementById("userQuestion");
+// Select a subject.
+subjectButtons.forEach(function (button) {
+  button.addEventListener("click", function () {
+    selectedSubject = button.dataset.subject;
 
-  const output = answerArea;
+    subjectButtons.forEach(function (item) {
+      item.classList.toggle("selected", item === button);
+    });
 
-  const button =
-    askButton ||
-    document.getElementById("askButton") ||
-    document.getElementById("askKaakyire") ||
-    document.querySelector('button[type="submit"]');
+    statusArea.textContent = "Selected subject: " + selectedSubject;
+    questionInput.focus();
+  });
+});
 
-  if (!input || !output || !button) {
-    console.error(
-      "Kaakyire: Check your HTML IDs for the question input, answer area, and Ask button."
-    );
+// Display an answer safely as plain text.
+function showAnswer(message) {
+  answerArea.textContent = message;
+}
+
+// Give the student a clear learning explanation.
+function getLearningAnswer(question, subject, difficulty) {
+  const text = question.toLowerCase().trim();
+
+  // Greetings
+  if (/^(hi|hello|hey|good morning|good afternoon)[!. ]*$/.test(text)) {
+    return "Hello! Welcome to Kaakyire Learning AI.\n\n" +
+      "Choose a school subject and tell me what you would like to learn.";
+  }
+
+  // Mathematics: common addition example
+  if (
+    subject === "Mathematics" &&
+    /^(what is )?2\s*\+\s*2\s*\??$/.test(text)
+  ) {
+    return "MATHEMATICS: ADDITION\n\n" +
+      "Question: 2 + 2\n\n" +
+      "Step 1: Start with 2.\n" +
+      "Step 2: Add 2 more.\n" +
+      "Step 3: Count 1, 2, 3, 4.\n\n" +
+      "Answer: 4\n\n" +
+      "Addition means putting quantities together.";
+  }
+
+  // Mathematics: common multiplication example
+  if (
+    subject === "Mathematics" &&
+    /^(what is )?12\s*(\*|x|×)\s*8\s*\??$/.test(text)
+  ) {
+    return "MATHEMATICS: MULTIPLICATION\n\n" +
+      "Question: 12 × 8\n\n" +
+      "Step 1: Multiply 10 × 8 = 80.\n" +
+      "Step 2: Multiply 2 × 8 = 16.\n" +
+      "Step 3: Add 80 + 16 = 96.\n\n" +
+      "Answer: 96";
+  }
+
+  // English
+  if (subject === "English") {
+    if (text.includes("noun")) {
+      return "ENGLISH: NOUNS\n\n" +
+        "A noun is a word that names a person, place, animal, " +
+        "or thing.\n\n" +
+        "Examples:\n" +
+        "• Person: teacher\n" +
+        "• Place: school\n" +
+        "• Animal: dog\n" +
+        "• Thing: book\n\n" +
+        "Example sentence: The student reads a book.\n" +
+        "Student and book are nouns.";
+    }
+
+    if (text.includes("verb")) {
+      return "ENGLISH: VERBS\n\n" +
+        "A verb is a word that expresses an action or a state.\n\n" +
+        "Examples: run, read, write, think, is.\n\n" +
+        "Example sentence: Ama reads a book.\n" +
+        "The word 'reads' is the verb.";
+    }
+
+    if (text.includes("adjective")) {
+      return "ENGLISH: ADJECTIVES\n\n" +
+        "An adjective describes a noun.\n\n" +
+        "Examples: tall, happy, blue, beautiful.\n\n" +
+        "Example: The tall girl has a blue bag.\n" +
+        "Tall describes the girl. Blue describes the bag.";
+    }
+  }
+
+  // Science
+  if (subject === "Science") {
+    if (text.includes("photosynthesis")) {
+      return "SCIENCE: PHOTOSYNTHESIS\n\n" +
+        "Photosynthesis is the process plants use to make " +
+        "their own food.\n\n" +
+        "Plants need:\n" +
+        "1. Sunlight\n" +
+        "2. Water\n" +
+        "3. Carbon dioxide from the air\n\n" +
+        "The leaves use these ingredients to make sugar " +
+        "and release oxygen.\n\n" +
+        "Remember: sunlight + water + carbon dioxide help " +
+        "plants make food.";
+    }
+
+    if (text.includes("water cycle")) {
+      return "SCIENCE: THE WATER CYCLE\n\n" +
+        "The water cycle is the continuous movement of water " +
+        "between Earth's surface and the atmosphere.\n\n" +
+        "1. Evaporation: the Sun heats water, turning it into vapor.\n" +
+        "2. Condensation: vapor cools and forms clouds.\n" +
+        "3. Precipitation: water falls as rain, snow, or hail.\n" +
+        "4. Collection: water gathers in rivers, lakes, and oceans.";
+    }
+
+    if (text.includes("gravity")) {
+      return "SCIENCE: GRAVITY\n\n" +
+        "Gravity is a force of attraction between objects that " +
+        "have mass.\n\n" +
+        "Earth's gravity pulls objects toward the ground.\n\n" +
+        "Example: When you drop a pencil, it falls toward Earth " +
+        "because of gravity.";
+    }
+  }
+
+  // History
+  if (subject === "History") {
+    if (text.includes("history")) {
+      return "HISTORY: UNDERSTANDING THE PAST\n\n" +
+        "History is the study of people, events, and societies " +
+        "from the past.\n\n" +
+        "Historians learn from sources such as letters, " +
+        "photographs, artifacts, records, and oral accounts.\n\n" +
+        "To study an event, ask:\n" +
+        "1. What happened?\n" +
+        "2. When and where did it happen?\n" +
+        "3. Who was involved?\n" +
+        "4. What caused it?\n" +
+        "5. What were its effects?";
+    }
+  }
+
+  // Geography
+  if (subject === "Geography") {
+    if (text.includes("continent") || text.includes("continents")) {
+      return "GEOGRAPHY: THE CONTINENTS\n\n" +
+        "In the commonly taught seven-continent model, the " +
+        "continents are:\n\n" +
+        "1. Africa\n" +
+        "2. Antarctica\n" +
+        "3. Asia\n" +
+        "4. Europe\n" +
+        "5. North America\n" +
+        "6. South America\n" +
+        "7. Australia\n\n" +
+        "Geography studies places, Earth's features, people, " +
+        "and the environment.";
+    }
+
+    if (text.includes("equator")) {
+      return "GEOGRAPHY: THE EQUATOR\n\n" +
+        "The Equator is an imaginary line around the middle " +
+        "of Earth at 0 degrees latitude.\n\n" +
+        "It divides Earth into the Northern and Southern Hemispheres.";
+    }
+  }
+
+  // Social Studies
+  if (subject === "Social Studies") {
+    if (text.includes("community")) {
+      return "SOCIAL STUDIES: COMMUNITY\n\n" +
+        "A community is a group of people who live in the " +
+        "same area or share common interests.\n\n" +
+        "Community members may work together to keep their " +
+        "neighborhood clean, safe, and welcoming.\n\n" +
+        "Examples of community services include schools, " +
+        "libraries, hospitals, and fire services.";
+    }
+
+    if (text.includes("government")) {
+      return "SOCIAL STUDIES: GOVERNMENT\n\n" +
+        "A government is the system or group of people " +
+        "responsible for leading a country or community.\n\n" +
+        "Governments make and enforce laws, provide public " +
+        "services, and make decisions for society.\n\n" +
+        "Government systems differ from country to country.";
+    }
+  }
+
+  // General fallback for questions not covered above.
+  return "Thank you for your question!\n\n" +
+    "Subject: " + subject + "\n" +
+    "Learning level: " + difficulty + "\n\n" +
+    "Your question: " + question + "\n\n" +
+    "This version of Kaakyire can demonstrate a few prepared " +
+    "examples, but it is not yet connected to a real AI model. " +
+    "It cannot reliably answer every question yet.\n\n" +
+    "Our next step is to connect a secure AI service so Kaakyire " +
+    "can generate explanations for many different school topics.";
+}
+
+// Process a submitted question.
+function answerQuestion(event) {
+  event.preventDefault();
+
+  const question = questionInput.value.trim();
+  const difficulty = difficultySelect.value;
+
+  if (!question) {
+    showAnswer("Please type your question before asking Kaakyire.");
+    questionInput.focus();
     return;
   }
 
-  const subjects = [
-    "Mathematics",
-    "English",
-    "Science",
-    "History",
-    "Geography",
-    "Social Studies"
-  ];
+  askButton.disabled = true;
+  askButton.textContent = "Preparing response...";
+  statusArea.textContent = "Your question has been submitted.";
 
-  function normalize(text) {
-    return text.toLowerCase().trim().replace(/\s+/g, " ");
-  }
-
-  function showAnswer(message) {
-    // textContent prevents a student's question from being
-    // interpreted as HTML.
-    output.textContent = message;
-  }
-
-  function getSubject() {
-    if (!subjectSelect) return "general";
-
-    const value = normalize(subjectSelect.value);
-
-    const mapping = {
-      math: "mathematics",
-      maths: "mathematics",
-      mathematics: "mathematics",
-      english: "english",
-      science: "science",
-      history: "history",
-      geography: "geography",
-      "social studies": "social studies",
-      socialstudies: "social studies"
-    };
-
-    return mapping[value] || value || "general";
-  }
-
-  function getDifficulty() {
-    return difficultySelect
-      ? difficultySelect.value
-      : "Easy";
-  }
-
-  function explainMath(question) {
-    const q = question.replace(/,/g, "");
-
-    // Arithmetic: 12 x 8, 12 * 8, 12 plus 8, etc.
-    const arithmetic =
-      q.match(/(-?\d+(?:\.\d+)?)\s*(\+|plus|add|minus|subtract|−|×|x|\*|multiply|times|÷|\/|divided by)\s*(-?\d+(?:\.\d+)?)/i);
-
-    if (arithmetic) {
-      const a = Number(arithmetic[1]);
-      const operator = arithmetic[2].toLowerCase();
-      const b = Number(arithmetic[3]);
-
-      let answer;
-      let explanation;
-
-      if (operator === "+" || operator === "plus" || operator === "add") {
-        answer = a + b;
-        explanation = "Addition means combining two numbers.";
-      } else if (
-        operator === "-" ||
-        operator === "−" ||
-        operator === "minus" ||
-        operator === "subtract"
-      ) {
-        answer = a - b;
-        explanation = "Subtraction means finding the difference.";
-      } else if (
-        ["x", "×", "*", "multiply", "times"].includes(operator)
-      ) {
-        answer = a * b;
-        explanation =
-          "Multiplication is repeated addition. " +
-          a + " groups of " + b + " gives the same product.";
-      } else {
-        if (b === 0) {
-          return "We cannot divide by zero. Please try another question.";
-        }
-        answer = a / b;
-        explanation = "Division splits a number into equal groups.";
-      }
-
-      return (
-        "Mathematics\n\n" +
-        "Question: " + question + "\n\n" +
-        "Step 1: Identify the operation.\n" +
-        "Step 2: " + explanation + "\n" +
-        "Step 3: Calculate the result.\n\n" +
-        "Answer: " + answer
-      );
-    }
-
-    const square = q.match(/square root of\s+(\d+(?:\.\d+)?)/i);
-    if (square) {
-      const n = Number(square[1]);
-      return (
-        "Mathematics\n\n" +
-        "The square root of " + n + " is " +
-        Math.sqrt(n) + ".\n\n" +
-        "A square root is a number that, when multiplied by itself, gives the original number."
-      );
-    }
-
-    return (
-      "Mathematics\n\n" +
-      "Let's solve your problem step by step.\n\n" +
-      "Please enter a clear problem, such as:\n" +
-      "• 12 × 8\n" +
-      "• 45 + 27\n" +
-      "• 100 ÷ 4\n" +
-      "• What is the square root of 81?\n\n" +
-      "For word problems, include the full question."
+  try {
+    const response = getLearningAnswer(
+      question,
+      selectedSubject,
+      difficulty
     );
-  }
 
-  function explainEnglish(question) {
-    const q = normalize(question);
-
-    if (/\b(noun|what is a noun)\b/.test(q)) {
-      return (
-        "English: Nouns\n\n" +
-        "A noun is a word that names a person, place, animal, or thing.\n\n" +
-        "Examples: teacher, school, dog, book.\n\n" +
-        "Sentence: The teacher reads a book.\n" +
-        "Teacher and book are nouns."
-      );
-    }
-
-    if (/\bverb\b/.test(q)) {
-      return (
-        "English: Verbs\n\n" +
-        "A verb expresses an action or a state of being.\n\n" +
-        "Examples: run, write, sing, is.\n\n" +
-        "Sentence: Ama sings beautifully.\n" +
-        "The word 'sings' is the verb."
-      );
-    }
-
-    if (/\badjective\b/.test(q)) {
-      return (
-        "English: Adjectives\n\n" +
-        "An adjective describes a noun.\n\n" +
-        "Examples: tall, beautiful, small, happy.\n\n" +
-        "Sentence: The small cat sleeps.\n" +
-        "'Small' describes the cat."
-      );
-    }
-
-    if (/\b(verb tense|past tense|present tense|future tense)\b/.test(q)) {
-      return (
-        "English: Verb Tenses\n\n" +
-        "Present: I walk to school.\n" +
-        "Past: I walked to school.\n" +
-        "Future: I will walk to school.\n\n" +
-        "Verb tenses tell us when an action happens."
-      );
-    }
-
-    if (/\bpronoun\b/.test(q)) {
-      return (
-        "English: Pronouns\n\n" +
-        "A pronoun replaces a noun.\n\n" +
-        "Examples: I, you, he, she, it, we, they.\n\n" +
-        "Instead of 'Ama is reading,' we can say 'She is reading.'"
-      );
-    }
-
-    return (
-      "English\n\n" +
-      "I can help with grammar, vocabulary, reading, spelling, " +
-      "sentence writing, and punctuation.\n\n" +
-      "Try asking:\n" +
-      "• What is a noun?\n" +
-      "• What is a verb?\n" +
-      "• What is an adjective?\n" +
-      "• Explain past tense.\n" +
-      "• Help me write a paragraph.\n\n" +
-      "For writing assignments, paste the instructions so we can work through them together."
+    showAnswer(response);
+    statusArea.textContent = "Response ready.";
+  } catch (error) {
+    console.error("Kaakyire error:", error);
+    showAnswer(
+      "Sorry, something went wrong. Please refresh the page and try again."
     );
+    statusArea.textContent = "Please try again.";
+  } finally {
+    askButton.disabled = false;
+    askButton.textContent = "Ask Kaakyire";
   }
+}
 
-  function explainScience(question) {
-    const q = normalize(question);
+// Connect the form to the answer function.
+if (questionForm) {
+  questionForm.addEventListener("submit", answerQuestion);
+} else {
+  console.error("Could not find the question form in index.html.");
+}
 
-    if (/\b(photosynthesis|plants make food)\b/.test(q)) {
-      return (
-        "Science: Photosynthesis\n\n" +
-        "Photosynthesis is the process by which green plants make food.\n\n" +
-        "Step 1: Plants absorb sunlight.\n" +
-        "Step 2: Their leaves take in carbon dioxide.\n" +
-        "Step 3: Roots absorb water.\n" +
-        "Step 4: The plant uses these ingredients to make sugar and releases oxygen.\n\n" +
-        "Remember: Sunlight, water, and carbon dioxide are important for photosynthesis."
-      );
-    }
+console.log("Kaakyire Learning AI JavaScript loaded successfully.");
 
-    if (/\b(water cycle|evaporation|condensation|precipitation)\b/.test(q)) {
-      return (
-        "Science: The Water Cycle\n\n" +
-        "1. Evaporation: The Sun heats water, turning it into water vapor.\n" +
-        "2. Condensation: Water vapor cools and forms clouds.\n" +
-        "3. Precipitation: Water falls as rain, snow, sleet, or hail.\n" +
-        "4. Collection: Water gathers in rivers, lakes, and oceans.\n\n" +
-        "The cycle repeats."
-      );
-    }
 
-    if (/\b(planet|solar system|planets)\b/.test(q)) {
-      return (
-        "Science: The Solar System\n\n" +
-        "The solar system includes the Sun and the objects that orbit it.\n\n" +
-        "The eight planets in order from the Sun are:\n" +
-        "Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune.\n\n" +
-        "Earth is the planet where we live."
-      );
-    }
 
-    if (/\b(force|gravity)\b/.test(q)) {
-      return (
-        "Science: Force and Gravity\n\n" +
-        "A force is a push or a pull.\n\n" +
-        "Gravity is a force that attracts objects toward one another.\n" +
-        "Earth's gravity pulls objects toward the ground.\n\n" +
-        "Example: When you drop a ball, gravity pulls it down."
-      );
-    }
-
-    if (/\b(states of matter|solid|liquid|gas)\b/.test(q)) {
-      return (
-        "Science: States of Matter\n\n" +
-        "Solid: Has a definite shape, such as ice.\n" +
-        "Liquid: Flows and takes the shape of its container, such as water.\n" +
-        "Gas: Spreads out to fill available space, such as water vapor.\n\n" +
-        "Heating and cooling can change matter from one state to another."
-      );
-    }
-
-    return (
-      "Science\n\n" +
-      "Science helps us understand living things, matter, energy, " +
-      "Earth, space, and the natural world.\n\n" +
-      "Try asking:\n" +
-      "• What is photosynthesis?\n" +
-      "• Explain the water cycle.\n" +
-      "• How many planets are in the solar system?\n" +
-      "• What is gravity?\n" +
-      "• What are the three common states of matter?\n\n" +
-      "Enter the full question for more targeted help."
-    );
-  }
-
-  function explainHistory(question) {
-    const q = normalize(question);
-
-    if (/\b(ancient egypt|egyptian pyramids|pyramids)\b/.test(q)) {
-      return (
-        "History: Ancient Egypt\n\n" +
-        "Ancient Egypt was a civilization that developed along the Nile River in northeastern Africa.\n\n" +
-        "The Nile provided water and fertile soil for farming.\n" +
-        "Egypt is famous for its pyramids, pharaohs, and hieroglyphic writing.\n\n" +
-        "Why is the Nile important? It supported farming, transport, and settlement."
-      );
-    }
-
-    if (/\b(slave trade|transatlantic slave trade|slavery)\b/.test(q)) {
-      return (
-        "History: Slavery and the Transatlantic Slave Trade\n\n" +
-        "The transatlantic slave trade forcibly transported millions of African people across the Atlantic Ocean, mainly to the Americas, from the 16th through the 19th centuries.\n\n" +
-        "Enslaved people were deprived of their freedom and forced to work. Their resistance, cultures, and contributions shaped history.\n\n" +
-        "When studying this topic, examine its causes, human impact, resistance, abolition, and lasting consequences."
-      );
-    }
-
-    if (/\b(ghana independence|independence of ghana|kwame nkrumah)\b/.test(q)) {
-      return (
-        "History: Ghana's Independence\n\n" +
-        "Ghana became independent from British colonial rule on 6 March 1957.\n\n" +
-        "Kwame Nkrumah was a leading figure in the independence movement and became Ghana's first prime minister and later its first president.\n\n" +
-        "Ghana was the first country in sub-Saharan Africa to gain independence from colonial rule in the postwar era."
-      );
-    }
-
-    if (/\b(world war ii|second world war)\b/.test(q)) {
-      return (
-        "History: World War II\n\n" +
-        "World War II lasted from 1939 to 1945.\n\n" +
-        "It involved many countries and caused enormous destruction and loss of life.\n" +
-        "The Holocaust was the systematic persecution and murder of six million Jewish people by Nazi Germany and its collaborators, alongside the persecution and murder of other targeted groups.\n\n" +
-        "The war ended in 1945."
-      );
-    }
-
-    if (/\b(american revolution|us independence|declaration of independence)\b/.test(q)) {
-      return (
-        "History: American Independence\n\n" +
-        "The Declaration of Independence was adopted on 4 July 1776.\n\n" +
-        "It announced that the thirteen American colonies considered themselves independent of Great Britain.\n\n" +
-        "The American Revolutionary War continued until 1783."
-      );
-    }
-
-    return (
-      "History\n\n" +
-      "History helps us understand past people, events, civilizations, " +
-      "and how societies have changed.\n\n" +
-      "Try asking:\n" +
-      "• What was ancient Egypt?\n" +
-      "• When did Ghana gain independence?\n" +
-      "• What was the transatlantic slave trade?\n" +
-      "• What caused World War II?\n" +
-      "• What was the American Revolution?\n\n" +
-      "For other topics, enter the full question. A connected AI service will be needed for broad, detailed answers."
-    );
-  }
-
-  function explainGeography(question) {
-    const q = normalize(question);
-
-    if (/\b(continents|how many continents)\b/.test(q)) {
-      return (
-        "Geography: Continents\n\n" +
-        "A common model recognizes seven continents:\n" +
-        "Africa, Antarctica, Asia, Europe, North America, South America, and Australia.\n\n" +
-        "A continent is one of Earth's major landmasses."
-      );
-    }
-
-    if (/\b(ghana|capital of ghana|accra)\b/.test(q)) {
-      return (
-        "Geography: Ghana\n\n" +
-        "Ghana is a country in West Africa.\n" +
-        "Its capital city is Accra.\n" +
-        "Ghana borders Côte d'Ivoire, Burkina Faso, and Togo, and has a coastline along the Gulf of Guinea."
-      );
-    }
-
-    if (/\b(weather|climate)\b/.test(q)) {
-      return (
-        "Geography: Weather and Climate\n\n" +
-        "Weather describes atmospheric conditions over a short period, such as today's rain or temperature.\n\n" +
-        "Climate describes typical weather patterns in a place over a long period, usually 30 years or more.\n\n" +
-        "Remember: Weather is short-term; climate is long-term."
-      );
-    }
-
-    if (/\b(equator|latitude|longitude)\b/.test(q)) {
-      return (
-        "Geography: Finding Places on Earth\n\n" +
-        "The equator is an imaginary line around the middle of Earth.\n\n" +
-        "Latitude measures positions north or south of the equator.\n" +
-        "Longitude measures positions east or west of the prime meridian.\n\n" +
-        "Together, latitude and longitude help identify locations."
-      );
-    }
-
-    if (/\b(erosion|river|mountain|landform)\b/.test(q)) {
-      return (
-        "Geography: Landforms and Erosion\n\n" +
-        "Landforms are natural features of Earth's surface, such as mountains, valleys, and plains.\n\n" +
-        "Erosion is the movement of soil or rock by water, wind, ice, or gravity.\n\n" +
-        "Example: A river can slowly wear away its banks."
-      );
-    }
-
-    return (
-      "Geography\n\n" +
-      "Geography studies Earth's places, people, environments, " +
-      "landforms, and natural resources.\n\n" +
-      "Try asking:\n" +
-      "• How many continents are there?\n" +
-      "• What is the capital of Ghana?\n" +
-      "• What is the difference between weather and climate?\n" +
-      "• What are latitude and longitude?\n" +
-      "• What is erosion?\n\n" +
-      "Include the full question for more specific help."
-    );
-  }
-
-  function explainSocialStudies(question) {
-    const q = normalize(question);
-
-    if (/\b(democracy|government)\b/.test(q)) {
-      return (
-        "Social Studies: Democracy and Government\n\n" +
-        "Government is the system a country uses to make and enforce laws and provide public services.\n\n" +
-        "In a democracy, people have a role in choosing leaders, often through elections.\n\n" +
-        "Example: Eligible citizens vote to help choose their representatives."
-      );
-    }
-
-    if (/\b(community|citizen|citizenship)\b/.test(q)) {
-      return (
-        "Social Studies: Community and Citizenship\n\n" +
-        "A community is a group of people who live in the same area or share something in common.\n\n" +
-        "Good citizenship includes respecting others, following fair laws, helping the community, and taking responsibility.\n\n" +
-        "Example: Keeping a shared park clean helps the community."
-      );
-    }
-
-    if (/\b(culture|tradition|customs)\b/.test(q)) {
-      return (
-        "Social Studies: Culture and Traditions\n\n" +
-        "Culture includes the beliefs, languages, foods, arts, customs, and traditions shared by a group of people.\n\n" +
-        "Cultures can differ, and people within the same culture may have different experiences.\n\n" +
-        "Respecting cultural differences helps people live and learn together."
-      );
-    }
-
-    if (/\b(natural resources|resources|conservation)\b/.test(q)) {
-      return (
-        "Social Studies: Natural Resources\n\n" +
-        "Natural resources come from the environment.\n\n" +
-        "Examples include water, soil, forests, minerals, sunlight, and wind.\n\n" +
-        "Conservation means using resources carefully so they remain available in the future."
-      );
-    }
-
-    if (/\b(economy|goods and services|trade)\b/.test(q)) {
-      return (
-        "Social Studies: Economics\n\n" +
-        "Goods are things people buy or use, such as books and food.\n" +
-        "Services are activities people do for others, such as teaching or medical care.\n\n" +
-        "Trade is the exchange of goods or services."
-      );
-    }
-
-    return (
-      "Social Studies\n\n" +
-      "Social Studies helps us understand people, communities, " +
-      "government, culture, history, geography, and the economy.\n\n" +
-      "Try asking:\n" +
-      "• What is democracy?\n" +
-      "• What is a community?\n" +
-      "• What is culture?\n" +
-      "• What are natural resources?\n" +
-      "• What is the difference between goods and services?\n\n" +
-      "Enter the full question for a more focused explanation."
-    );
-  }
-
-  function getLearningAnswer(question, subject, difficulty) {
-    const q = normalize(question);
-
-    if (!q) {
-      return "Please type a question first. Kaakyire is ready to help you learn!";
-    }
-
-    let answer;
-
-    // Recognize simple arithmetic even if no subject was selected.
-    if (
-      subject === "mathematics" ||
-      subject === "math" ||
-      subject === "general"
-    ) {
-      const mathAnswer = explainMath(question);
-
-      if (
-        subject !== "general" ||
-        /-?\d+(?:\.\d+)?\s*(?:\+|plus|add|minus|subtract|−|×|x|\*|multiply|times|÷|\/|divided by)\s*-?\d+(?:\.\d+)?/i.test(question) ||
-        /square root of/i.test(question)
-      ) {
-        answer = mathAnswer;
-      }
-    }
-
-    if (!answer) {
-      switch (subject) {
-        case "english":
-          answer = explainEnglish(question);
-          break;
-        case "science":
-          answer = explainScience(question);
-          break;
-        case "history":
-          answer = explainHistory(question);
-          break;
-        case "geography":
-          answer = explainGeography(question);
-          break;
-        case "social studies":
-        case "socialstudies":
-          answer = explainSocialStudies(question);
-          break;
-        case "general":
-          answer =
-            "Welcome to Kaakyire Learning AI!\n\n" +
-            "Please select a subject, then ask your question.\n\n" +
-            "Subjects: " + subjects.join(", ") + ".";
-          break;
-        default:
-          answer =
-            "Please select one of these subjects: " +
-            subjects.join(", ") + ".";
-      }
-    }
-
-    if (difficulty && normalize(difficulty) === "easy") {
-      answer +=
-        "\n\nLearning tip: Read the explanation slowly and try to explain it in your own words.";
-    } else if (difficulty && normalize(difficulty) === "hard") {
-      answer +=
-        "\n\nChallenge: Think of a real-life example and explain why your answer makes sense.";
-    }
-
-    return answer;
-  }
-
-  function handleAsk(event) {
-    if (event) event.preventDefault();
-
-    const question = input.value.trim();
-    const subject = getSubject();
-    const difficulty = getDifficulty();
-
-    button.disabled = true;
-    const oldLabel = button.textContent;
-    button.textContent = "Thinking...";
-
-    try {
-      const answer = getLearningAnswer(question, subject, difficulty);
-      showAnswer(answer);
-    } catch (error) {
-      console.error("Kaakyire error:", error);
-      showAnswer(
-        "Sorry, something went wrong. Please check your question and try again."
-      );
-    } finally {
-      button.disabled = false;
-      button.textContent = oldLabel || "Ask Kaakyire";
-    }
-  }
-
-  button.addEventListener("click", handleAsk);
-
-  // Allow students to submit their question with Enter.
-  input.addEventListener("keydown", function (event) {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      handleAsk(event);
-    }
-  });
-
-  // Support forms without triggering a page reload.
-  const form = button.closest("form");
-  if (form) {
-    form.addEventListener("submit", handleAsk);
-  }
-
-  console.log("Kaakyire Learning AI is ready.");
+3. Test your website
