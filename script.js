@@ -1,621 +1,344 @@
 "use strict";
-/* =====================================================
-   KAAKYIRE LEARNING AI
-   K–12 Learning Engine
-   Subjects: Mathematics, English, Science, History,
-   Geography and Social Studies
-   ===================================================== */
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("question-form");
+  const subjectInput = document.getElementById("subject");
+  const difficultyInput = document.getElementById("difficulty");
+  const questionInput = document.getElementById("question");
+  const askButton = document.getElementById("ask-button");
+  const answerBox = document.getElementById("answer");
+  const statusBox = document.getElementById("status");
 
-const Kaakyire = (() => {
-  const elements = {};
-  const state = {
-    subject: "Mathematics",
-    level: "Easy",
-    grade: "Grade 6",
-    questionCount: 0
-  };
-
-  const subjects = [
-    "Mathematics",
-    "English",
-    "Science",
-    "History",
-    "Geography",
-    "Social Studies"
-  ];
-
-  function initialize() {
-    elements.form = document.getElementById("question-form");
-    elements.input = document.getElementById("question");
-    elements.ask = document.getElementById("ask-button");
-    elements.answer = document.getElementById("answer");
-    elements.status = document.getElementById("status");
-    elements.difficulty = document.getElementById("difficulty");
-    elements.subjectButtons =
-      document.querySelectorAll("[data-subject]");
-
-    if (!elements.form || !elements.input ||
-        !elements.ask || !elements.answer) {
-      console.error(
-        "Kaakyire could not find required HTML elements. " +
-        "Check index.html IDs and the script.js link."
-      );
-      return;
-    }
-
-    elements.subjectButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        const selected = button.dataset.subject;
-        if (!subjects.includes(selected)) return;
-
-        state.subject = selected;
-
-        elements.subjectButtons.forEach(item => {
-          item.classList.toggle("selected", item === button);
-          item.setAttribute(
-            "aria-pressed",
-            String(item === button)
-          );
-        });
-
-        setStatus("Subject selected: " + selected);
-        elements.input.focus();
-      });
-    });
-
-    elements.form.addEventListener("submit", handleSubmit);
-
-    setStatus("Kaakyire is ready to help you learn.");
-    console.log("Kaakyire Learning AI initialized.");
+  // Check that the page and JavaScript are connected.
+  if (
+    !form ||
+    !subjectInput ||
+    !difficultyInput ||
+    !questionInput ||
+    !askButton ||
+    !answerBox ||
+    !statusBox
+  ) {
+    console.error(
+      "Kaakyire could not find one or more required HTML elements."
+    );
+    return;
   }
 
-  function setStatus(message) {
-    if (elements.status) {
-      elements.status.textContent = message;
-    }
-  }
+  statusBox.textContent = "Kaakyire is ready to help you learn.";
 
-  function display(message) {
-    elements.answer.textContent = message;
-  }
-
-  function normalize(value) {
-    return value
-      .toLowerCase()
-      .replace(/[’‘]/g, "'")
-      .replace(/[–—]/g, "-")
-      .replace(/\s+/g, " ")
-      .trim();
-  }
-
-  function containsAny(text, terms) {
-    return terms.some(term => text.includes(term));
-  }
-
-  function handleSubmit(event) {
+  form.addEventListener("submit", function (event) {
     event.preventDefault();
 
-    const question = elements.input.value.trim();
-    state.level = elements.difficulty
-      ? elements.difficulty.value
-      : "Easy";
+    const question = questionInput.value.trim();
+    const subject = subjectInput.value;
+    const level = difficultyInput.value;
 
     if (!question) {
-      display("Please enter a school question first.");
-      elements.input.focus();
+      statusBox.textContent = "Please type a question first.";
+      questionInput.focus();
       return;
     }
 
-    state.questionCount += 1;
-    elements.ask.disabled = true;
-    elements.ask.textContent = "Working...";
+    askButton.disabled = true;
+    askButton.textContent = "Working...";
+    statusBox.textContent = "Preparing your explanation...";
+    answerBox.textContent = "";
 
     try {
-      const response = solve(question);
-
-      display(response);
-      setStatus(
-        "Question " + state.questionCount +
-        " processed. Subject: " + state.subject + "."
-      );
+      const response = getLearningAnswer(subject, question, level);
+      answerBox.textContent = response;
+      statusBox.textContent = "Your answer is ready.";
     } catch (error) {
-      console.error("Kaakyire processing error:", error);
-      display(
-        "Sorry, an unexpected error occurred. " +
-        "Please try your question again."
-      );
-      setStatus("An error occurred.");
+      console.error("Kaakyire error:", error);
+      answerBox.textContent =
+        "Sorry, something went wrong. Please check the JavaScript code and try again.";
+      statusBox.textContent = "An error occurred.";
     } finally {
-      elements.ask.disabled = false;
-      elements.ask.textContent = "Ask Kaakyire";
+      askButton.disabled = false;
+      askButton.textContent = "Ask Kaakyire";
     }
-  }
+  });
 
-  function solve(question) {
-    const text = normalize(question);
+  function getLearningAnswer(subject, question, level) {
+    const q = question.toLowerCase().trim();
 
-    if (/^(hi|hello|hey|good morning|good afternoon)[!. ]*$/.test(text)) {
-      return "Hello! Welcome to Kaakyire Learning AI.\n\n" +
-        "I can help you practise school topics, understand " +
-        "examples and build your confidence.\n\n" +
-        "Choose a subject and ask your question.";
+    if (subject === "Mathematics") {
+      const mathAnswer = solveMath(q);
+
+      if (mathAnswer !== null) {
+        return mathAnswer;
+      }
     }
 
-    const result = solveMath(text);
-    if (result) return result;
+    const lessons = {
+      "English": [
+        {
+          words: ["noun"],
+          answer: "A noun names a person, place, thing, or idea. Examples include teacher, school, book, and kindness. In the sentence 'The student reads a book,' student and book are nouns."
+        },
+        {
+          words: ["verb"],
+          answer: "A verb expresses an action or a state of being. Examples include run, write, think, is, and are. In 'The child runs,' runs is the verb."
+        },
+        {
+          words: ["adjective"],
+          answer: "An adjective describes a noun or pronoun. For example, in 'The tall tree is green,' tall and green describe the tree."
+        },
+        {
+          words: ["adverb"],
+          answer: "An adverb often describes a verb, adjective, or another adverb. In 'She reads carefully,' carefully tells us how she reads."
+        },
+        {
+          words: ["pronoun"],
+          answer: "A pronoun replaces a noun. Examples include I, you, he, she, it, we, and they. Instead of 'Ama is reading,' you can say 'She is reading.'"
+        },
+        {
+          words: ["punctuation", "comma", "full stop", "period"],
+          answer: "Punctuation makes writing easier to understand. A full stop ends a statement. A comma separates items or parts of a sentence. A question mark ends a direct question."
+        },
+        {
+          words: ["simile"],
+          answer: "A simile compares two things using 'like' or 'as.' Example: 'She is as brave as a lion.' The comparison helps readers imagine the person's bravery."
+        },
+        {
+          words: ["metaphor"],
+          answer: "A metaphor describes one thing as another to make a comparison. For example, 'Time is a thief' suggests that time takes moments away from us."
+        },
+        {
+          words: ["synonym"],
+          answer: "A synonym is a word with the same or a similar meaning as another word. For example, happy and joyful are synonyms."
+        },
+        {
+          words: ["antonym"],
+          answer: "An antonym is a word with the opposite meaning of another word. For example, hot and cold are antonyms."
+        },
+        {
+          words: ["essay", "paragraph"],
+          answer: "A good paragraph usually focuses on one main idea. Begin with a topic sentence, add supporting details or examples, and finish with a sentence that connects or concludes the idea."
+        }
+      ],
 
-    const subjectHandlers = {
-      "Mathematics": answerMathConcept,
-      "English": answerEnglish,
-      "Science": answerScience,
-      "History": answerHistory,
-      "Geography": answerGeography,
-      "Social Studies": answerSocialStudies
+      "Science": [
+        {
+          words: ["photosynthesis"],
+          answer: "Photosynthesis is the process plants use to make food. Plants use light energy, water, and carbon dioxide to produce sugar and release oxygen. Chlorophyll in leaves captures light energy."
+        },
+        {
+          words: ["gravity"],
+          answer: "Gravity is a force of attraction between objects that have mass. Earth's gravity pulls objects toward its center, which is why a dropped ball falls to the ground."
+        },
+        {
+          words: ["water cycle"],
+          answer: "The water cycle moves water around Earth. The Sun heats water, causing evaporation. Water vapor cools and condenses into clouds. Then precipitation, such as rain or snow, returns water to Earth's surface."
+        },
+        {
+          words: ["solar system", "planet", "planets"],
+          answer: "Our solar system includes the Sun, eight planets, their moons, and many smaller objects. The planets, in order from the Sun, are Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune."
+        },
+        {
+          words: ["cell", "cells"],
+          answer: "A cell is the basic unit of life. Many living things are made of one cell, while plants and animals are made of many cells. Plant cells usually have a cell wall and chloroplasts; animal cells do not."
+        },
+        {
+          words: ["force", "motion"],
+          answer: "A force is a push or pull that can change an object's motion or shape. Motion describes a change in an object's position over time. Friction is a force that resists sliding between surfaces."
+        },
+        {
+          words: ["matter"],
+          answer: "Matter is anything that has mass and takes up space. The three common states are solid, liquid, and gas. Solids keep their shape, liquids flow, and gases spread to fill their container."
+        },
+        {
+          words: ["ecosystem", "food chain"],
+          answer: "An ecosystem includes living organisms and their nonliving environment. In a food chain, energy moves from one organism to another. For example, grass can be eaten by a grasshopper, which can be eaten by a frog."
+        }
+      ],
+
+      "History": [
+        {
+          words: ["ancient egypt", "egyptian pyramids", "pyramids"],
+          answer: "Ancient Egypt was a civilization in northeastern Africa along the Nile River. The Nile supported farming and travel. Egyptian pyramids were monumental structures built mainly as tombs for pharaohs."
+        },
+        {
+          words: ["transatlantic slave trade", "slave trade"],
+          answer: "The transatlantic slave trade forcibly transported millions of African people across the Atlantic Ocean, mainly to the Americas, over several centuries. Enslaved people endured violence and exploitation, and the trade had lasting effects on societies and families."
+        },
+        {
+          words: ["american revolution", "independence of america"],
+          answer: "The American Revolution was the struggle by Britain's thirteen North American colonies to become independent. The Declaration of Independence was adopted on July 4, 1776. The war ended with Britain's recognition of American independence in 1783."
+        },
+        {
+          words: ["world war i", "first world war"],
+          answer: "World War I lasted from 1914 to 1918. It involved many countries and alliances. The assassination of Archduke Franz Ferdinand was the immediate trigger, while rivalries and militarism contributed to the wider conflict."
+        },
+        {
+          words: ["world war ii", "second world war"],
+          answer: "World War II lasted from 1939 to 1945. It involved countries around the world and caused enormous loss of life. The Holocaust was the systematic persecution and murder of six million Jews by Nazi Germany and its collaborators, alongside other victims."
+        },
+        {
+          words: ["history"],
+          answer: "History is the study of people and events of the past. Historians examine evidence such as documents, photographs, artifacts, and oral accounts to understand what happened and why."
+        }
+      ],
+
+      "Geography": [
+        {
+          words: ["continent", "continents"],
+          answer: "The seven commonly recognized continents are Africa, Antarctica, Asia, Europe, North America, South America, and Australia. A continent is a large landmass, though the way continents are grouped can vary by educational tradition."
+        },
+        {
+          words: ["equator"],
+          answer: "The Equator is an imaginary line around Earth at 0 degrees latitude. It divides Earth into the Northern and Southern Hemispheres."
+        },
+        {
+          words: ["weather", "climate"],
+          answer: "Weather describes atmospheric conditions over a short period, such as today's rain or temperature. Climate describes the usual patterns of weather in a place over many years."
+        },
+        {
+          words: ["river", "rivers"],
+          answer: "A river is a natural flow of water moving through a channel toward another river, a lake, or the sea. Rivers can provide water, support farming, and shape the land through erosion."
+        },
+        {
+          words: ["map", "latitude", "longitude"],
+          answer: "Maps represent places and features of Earth. Latitude measures position north or south of the Equator. Longitude measures position east or west of the Prime Meridian."
+        },
+        {
+          words: ["ghana"],
+          answer: "Ghana is a country in West Africa. Its capital is Accra, its official language is English, and it borders Côte d'Ivoire, Burkina Faso, and Togo. Ghana gained independence from British rule on March 6, 1957."
+        }
+      ],
+
+      "Social Studies": [
+        {
+          words: ["democracy"],
+          answer: "Democracy is a system of government in which people have a role in making political decisions, often by voting for representatives. Democratic systems also depend on laws, rights, participation, and accountability."
+        },
+        {
+          words: ["citizen", "citizenship"],
+          answer: "Citizenship is membership in a country or political community. Citizens may have rights, such as legal protection, and responsibilities, such as obeying laws and participating responsibly in their community."
+        },
+        {
+          words: ["community"],
+          answer: "A community is a group of people who share a place, interests, or connections. Communities work together through families, schools, local organizations, and public services to meet people's needs."
+        },
+        {
+          words: ["culture"],
+          answer: "Culture includes the customs, language, beliefs, arts, food, and traditions shared by a group of people. Cultures can change over time and may include many different traditions within one community."
+        },
+        {
+          words: ["government"],
+          answer: "A government organizes a country or community. Its responsibilities can include making and enforcing laws, providing public services, protecting rights, and managing public resources."
+        },
+        {
+          words: ["human rights", "rights"],
+          answer: "Human rights are basic rights and freedoms that belong to all people. Examples include the right to life, education, and freedom from torture. Human rights apply regardless of a person's background."
+        }
+      ]
     };
 
-    const handler = subjectHandlers[state.subject];
-
-    if (handler) {
-      const response = handler(text, question);
-      if (response) return response;
+    const subjectLessons = lessons[subject] || [];
+    for (const lesson of subjectLessons) {
+      if (lesson.words.some(word => q.includes(word))) {
+        return lesson.answer + getStudyTip(level);
+      }
     }
 
-    return buildFallback(question);
+    if (subject === "Mathematics") {
+      return "Let's work through the math problem carefully. Try entering a calculation such as '12 × 8', '144 divided by 12', 'What is 25% of 80?', or 'Solve 2x + 3 = 11'. This version can solve common arithmetic and simple linear equations.";
+    }
+
+    return "I received your " + subject + " question: \"" + question + "\".\n\nThis version has a small built-in lesson library, so it cannot accurately answer every possible question yet. Try asking about a specific topic such as photosynthesis, nouns, the water cycle, ancient Egypt, continents, or democracy.\n\nA real AI service will be needed for flexible answers to new questions. This version is not connected to that service yet." + getStudyTip(level);
   }
 
-  /* ---------------- MATHEMATICS ---------------- */
+  function getStudyTip(level) {
+    if (level === "Easy") {
+      return "\n\nStudy tip: Explain the main idea in your own words, as if you were teaching a friend.";
+    }
 
-  function solveMath(text) {
-    // Safely calculate simple arithmetic; no eval().
-    const expression = text
-      .replace(/^(what is|calculate|solve|work out)\s+/i, "")
-      .replace(/[?=]/g, "")
+    if (level === "Hard") {
+      return "\n\nChallenge: Find another example, explain why the idea works, and consider when it might not apply.";
+    }
+
+    return "\n\nStudy tip: Write down the main idea and one example to help you remember it.";
+  }
+
+  function solveMath(q) {
+    let s = q
+      .replace(/,/g, "")
       .replace(/×/g, "*")
       .replace(/÷/g, "/")
-      .replace(/\bdivided by\b/g, "/")
-      .replace(/\bmultiplied by\b/g, "*")
       .replace(/\btimes\b/g, "*")
+      .replace(/\bmultiplied by\b/g, "*")
+      .replace(/\bdivided by\b/g, "/")
       .replace(/\bplus\b/g, "+")
       .replace(/\bminus\b/g, "-")
+      .replace(/\bnegative\b/g, "-")
+      .replace(/\bwhat is\b/g, "")
+      .replace(/\bcalculate\b/g, "")
+      .replace(/\bsolve\b/g, "")
+      .replace(/[?=]/g, " ")
       .trim();
 
-    const match = expression.match(
-      /^(-?\d+(?:\.\d+)?)\s*([+\-*/])\s*(-?\d+(?:\.\d+)?)$/
-    );
-
-    if (match) {
-      const a = Number(match[1]);
-      const operator = match[2];
-      const b = Number(match[3]);
-      let answer;
-
-      if (operator === "+") answer = a + b;
-      if (operator === "-") answer = a - b;
-      if (operator === "*") answer = a * b;
-
-      if (operator === "/") {
-        if (b === 0) {
-          return "MATHEMATICS: DIVISION\n\n" +
-            "A number cannot be divided by zero. " +
-            "Division by zero is undefined.";
-        }
-        answer = a / b;
-      }
-
-      if (Number.isFinite(answer)) {
-        return "MATHEMATICS: STEP-BY-STEP SOLUTION\n\n" +
-          "Question: " + a + " " + operator + " " + b + "\n\n" +
-          mathSteps(a, operator, b, answer);
-      }
-    }
-
-    // Percentage problems such as "20% of 50".
-    const percent = text.match(
-      /(\d+(?:\.\d+)?)\s*%\s*of\s*(\d+(?:\.\d+)?)/
-    );
-
+    // Handle percentage questions such as "25% of 80".
+    const percent = s.match(/(-?\d+(?:\.\d+)?)\s*%\s*(?:of)\s*(-?\d+(?:\.\d+)?)/);
     if (percent) {
-      const rate = Number(percent[1]);
-      const amount = Number(percent[2]);
-      const answer = rate / 100 * amount;
-
-      return "MATHEMATICS: PERCENTAGES\n\n" +
-        "Question: " + rate + "% of " + amount + "\n\n" +
-        "Step 1: Change the percentage into a decimal.\n" +
-        rate + "% = " + rate / 100 + "\n\n" +
-        "Step 2: Multiply by the total.\n" +
-        (rate / 100) + " × " + amount + " = " + answer + "\n\n" +
-        "Answer: " + answer;
+      const p = Number(percent[1]);
+      const n = Number(percent[2]);
+      const result = (p / 100) * n;
+      return p + "% of " + n + " = " + formatNumber(result) +
+        "\n\nStep 1: Convert " + p + "% to a decimal: " + p + " ÷ 100 = " + (p / 100) +
+        "\nStep 2: Multiply by " + n + ".\nStep 3: The answer is " + formatNumber(result) + ".";
     }
 
-    // Times tables, e.g. "12 x 8".
-    const multiplication = text.match(
-      /(?:what is )?(\d+)\s*(?:x|×|\*|times)\s*(\d+)\??/
-    );
+    // Handle simple linear equations such as 2x + 3 = 11.
+    const equation = q.match(/^\s*(-?\d*\.?\d*)\s*x\s*([+-]\s*\d*\.?\d+)?\s*=\s*(-?\d*\.?\d+)\s*\??\s*$/i);
+    if (equation) {
+      let aText = equation[1];
+      const a = aText === "" || aText === "+" ? 1 :
+        aText === "-" ? -1 : Number(aText);
+      const b = equation[2] ? Number(equation[2].replace(/\s/g, "")) : 0;
+      const c = Number(equation[3]);
 
-    if (multiplication) {
-      const a = Number(multiplication[1]);
-      const b = Number(multiplication[2]);
-      const answer = a * b;
-
-      return "MATHEMATICS: MULTIPLICATION\n\n" +
-        a + " × " + b + " = " + answer + "\n\n" +
-        "Think of multiplication as repeated addition.\n" +
-        "For example, 4 × 3 means 3 + 3 + 3 + 3 = 12.\n\n" +
-        "Answer: " + answer;
+      if (Number.isFinite(a) && a !== 0 && Number.isFinite(b) && Number.isFinite(c)) {
+        const x = (c - b) / a;
+        return "Let's solve " + q.replace(/\?$/, "") + ".\n\n" +
+          "Step 1: Start with " + a + "x " + (b >= 0 ? "+ " + b : "- " + Math.abs(b)) + " = " + c + ".\n" +
+          "Step 2: Subtract " + b + " from both sides.\n" +
+          "Step 3: Divide both sides by " + a + ".\n" +
+          "Answer: x = " + formatNumber(x) + ".";
+      }
     }
 
-    if (containsAny(text, ["fraction", "fractions"])) {
-      return "MATHEMATICS: FRACTIONS\n\n" +
-        "A fraction represents part of a whole.\n\n" +
-        "Example: 3/4 means three out of four equal parts.\n\n" +
-        "The top number is the numerator. The bottom number " +
-        "is the denominator.\n\n" +
-        "Practice: What fraction is equal to 1/2? " +
-        "One answer is 2/4.";
+    // Find two numbers and an arithmetic operator.
+    const match = s.match(/(-?\d+(?:\.\d+)?)\s*([+\-*/])\s*(-?\d+(?:\.\d+)?)/);
+
+    if (!match) {
+      return null;
     }
 
-    if (containsAny(text, ["perimeter", "area of a rectangle"])) {
-      return "MATHEMATICS: AREA AND PERIMETER\n\n" +
-        "For a rectangle:\n\n" +
-        "Area = length × width\n" +
-        "Perimeter = 2 × (length + width)\n\n" +
-        "Example: length 5 cm and width 3 cm.\n" +
-        "Area = 5 × 3 = 15 square centimetres.\n" +
-        "Perimeter = 2 × (5 + 3) = 16 cm.";
-    }
+    const a = Number(match[1]);
+    const op = match[2];
+    const b = Number(match[3]);
+    let result;
 
-    if (containsAny(text, ["algebra", "solve for x", "equation"])) {
-      return "MATHEMATICS: ALGEBRA\n\n" +
-        "Algebra uses letters to represent unknown numbers.\n\n" +
-        "Example: x + 3 = 8\n\n" +
-        "Step 1: Subtract 3 from both sides.\n" +
-        "x + 3 - 3 = 8 - 3\n\n" +
-        "Step 2: Simplify.\n" +
-        "x = 5\n\n" +
-        "Check: 5 + 3 = 8, so the answer is correct.";
-    }
+    if (op === "+") result = a + b;
+    else if (op === "-") result = a - b;
+    else if (op === "*") result = a * b;
+    else if (op === "/") {
+      if (b === 0) return "You cannot divide a number by zero. Try a different divisor.";
+      result = a / b;
+    } else return null;
 
-    return null;
+    const symbol = { "+": "plus", "-": "minus", "*": "multiplied by", "/": "divided by" }[op];
+
+    return "Let's solve " + a + " " + symbol + " " + b + ".\n\n" +
+      "Step 1: Identify the two numbers: " + a + " and " + b + ".\n" +
+      "Step 2: Perform the operation " + op + ".\n" +
+      "Step 3: Calculate the result.\n\n" +
+      "Answer: " + formatNumber(result) + ".";
   }
 
-  function mathSteps(a, operator, b, answer) {
-    if (operator === "+") {
-      return "Step 1: Start with " + a + ".\n" +
-        "Step 2: Add " + b + ".\n" +
-        "Step 3: The total is " + answer + ".\n\n" +
-        "Answer: " + answer;
-    }
-
-    if (operator === "-") {
-      return "Step 1: Start with " + a + ".\n" +
-        "Step 2: Subtract " + b + ".\n" +
-        "Step 3: The result is " + answer + ".\n\n" +
-        "Answer: " + answer;
-    }
-
-    if (operator === "*") {
-      return "Step 1: Multiply " + a + " by " + b + ".\n" +
-        "Step 2: The product is " + answer + ".\n\n" +
-        "Answer: " + answer;
-    }
-
-    return "Step 1: Divide " + a + " by " + b + ".\n" +
-      "Step 2: The quotient is " + answer + ".\n\n" +
-      "Answer: " + answer;
+  function formatNumber(number) {
+    if (!Number.isFinite(number)) return String(number);
+    return Number(number.toFixed(8)).toString();
   }
-
-  function answerMathConcept(text) {
-    if (containsAny(text, ["prime number", "prime numbers"])) {
-      return "MATHEMATICS: PRIME NUMBERS\n\n" +
-        "A prime number is a whole number greater than 1 " +
-        "that has exactly two positive factors: 1 and itself.\n\n" +
-        "Examples: 2, 3, 5, 7, 11, 13.\n" +
-        "The number 9 is not prime because 9 = 3 × 3.";
-    }
-
-    return null;
-  }
-
-  /* ---------------- ENGLISH ---------------- */
-
-  function answerEnglish(text) {
-    if (containsAny(text, ["noun", "nouns"])) {
-      return "ENGLISH: NOUNS\n\n" +
-        "A noun names a person, place, animal, thing, or idea.\n\n" +
-        "Examples: teacher, school, dog, book, happiness.\n\n" +
-        "Sentence: The teacher reads a book.\n" +
-        "'Teacher' and 'book' are nouns.";
-    }
-
-    if (containsAny(text, ["verb", "verbs"])) {
-      return "ENGLISH: VERBS\n\n" +
-        "A verb expresses an action or a state of being.\n\n" +
-        "Examples: run, write, sing, think, is.\n\n" +
-        "Sentence: The children play outside.\n" +
-        "'Play' is the verb.";
-    }
-
-    if (containsAny(text, ["adjective", "adjectives"])) {
-      return "ENGLISH: ADJECTIVES\n\n" +
-        "An adjective describes a noun or pronoun.\n\n" +
-        "Examples: tall, kind, blue, bright.\n\n" +
-        "Sentence: The bright student wore a blue shirt.\n" +
-        "'Bright' describes the student; 'blue' describes the shirt.";
-    }
-
-    if (containsAny(text, ["adverb", "adverbs"])) {
-      return "ENGLISH: ADVERBS\n\n" +
-        "An adverb can describe a verb, adjective, or another adverb.\n\n" +
-        "Example: She ran quickly.\n" +
-        "'Quickly' tells us how she ran.";
-    }
-
-    if (containsAny(text, ["pronoun", "pronouns"])) {
-      return "ENGLISH: PRONOUNS\n\n" +
-        "A pronoun can take the place of a noun.\n\n" +
-        "Examples: I, you, he, she, it, we, they.\n\n" +
-        "Instead of 'Ama is reading', we can say 'She is reading'.";
-    }
-
-    if (containsAny(text, ["synonym", "synonyms"])) {
-      return "ENGLISH: SYNONYMS\n\n" +
-        "Synonyms are words with the same or similar meanings.\n\n" +
-        "Examples:\n" +
-        "Happy — joyful\n" +
-        "Big — large\n" +
-        "Begin — start\n" +
-        "Small — little";
-    }
-
-    if (containsAny(text, ["antonym", "antonyms"])) {
-      return "ENGLISH: ANTONYMS\n\n" +
-        "Antonyms are words with opposite meanings.\n\n" +
-        "Examples:\n" +
-        "Hot — cold\n" +
-        "Early — late\n" +
-        "Happy — sad\n" +
-        "Open — closed";
-    }
-
-    if (containsAny(text, ["punctuation", "comma", "full stop"])) {
-      return "ENGLISH: PUNCTUATION\n\n" +
-        "Punctuation helps make writing clear.\n\n" +
-        "Full stop (.): ends a statement.\n" +
-        "Question mark (?): ends a direct question.\n" +
-        "Comma (,): separates items or parts of a sentence.\n" +
-        "Example: I bought apples, oranges, and bananas.";
-    }
-
-    return null;
-  }
-
-  /* ---------------- SCIENCE ---------------- */
-
-  function answerScience(text) {
-    if (containsAny(text, ["photosynthesis"])) {
-      return "SCIENCE: PHOTOSYNTHESIS\n\n" +
-        "Photosynthesis is how green plants use light energy " +
-        "to make sugars from water and carbon dioxide.\n\n" +
-        "Plants need:\n" +
-        "1. Light energy\n" +
-        "2. Water\n" +
-        "3. Carbon dioxide\n\n" +
-        "Plants make sugars and release oxygen during the process.\n\n" +
-        "Remember: leaves are important places for photosynthesis.";
-    }
-
-    if (containsAny(text, ["water cycle", "evaporation", "condensation"])) {
-      return "SCIENCE: THE WATER CYCLE\n\n" +
-        "1. Evaporation: liquid water becomes water vapor.\n" +
-        "2. Condensation: vapor cools into tiny droplets.\n" +
-        "3. Precipitation: water falls as rain, snow, or hail.\n" +
-        "4. Collection: water gathers in rivers, lakes, and oceans.\n\n" +
-        "The Sun provides energy that drives much of the water cycle.";
-    }
-
-    if (containsAny(text, ["gravity"])) {
-      return "SCIENCE: GRAVITY\n\n" +
-        "Gravity is an attractive force between objects with mass.\n\n" +
-        "Earth's gravity pulls objects toward Earth's center.\n\n" +
-        "Example: A ball falls to the ground when you let it go.";
-    }
-
-    if (containsAny(text, ["solar system", "planets"])) {
-      return "SCIENCE: THE SOLAR SYSTEM\n\n" +
-        "Our solar system includes the Sun and the objects " +
-        "that orbit it.\n\n" +
-        "The eight planets, from the Sun outward, are:\n" +
-        "Mercury, Venus, Earth, Mars, Jupiter, Saturn, " +
-        "Uranus, and Neptune.\n\n" +
-        "Earth is the planet where we live.";
-    }
-
-    if (containsAny(text, ["states of matter", "solid", "liquid", "gas"])) {
-      return "SCIENCE: STATES OF MATTER\n\n" +
-        "Three common states of matter are:\n\n" +
-        "Solid: keeps a fixed shape, such as ice.\n" +
-        "Liquid: flows and takes the shape of its container, " +
-        "such as water.\n" +
-        "Gas: spreads to fill its container, such as water vapor.\n\n" +
-        "Heating or cooling can change a substance's state.";
-    }
-
-    if (containsAny(text, ["human body", "heart", "lungs"])) {
-      return "SCIENCE: THE HUMAN BODY\n\n" +
-        "The human body has many organs that work together.\n\n" +
-        "Heart: pumps blood around the body.\n" +
-        "Lungs: exchange oxygen and carbon dioxide.\n" +
-        "Brain: helps control and coordinate body functions.\n" +
-        "Stomach: helps break down food during digestion.";
-    }
-
-    return null;
-  }
-
-  /* ---------------- HISTORY ---------------- */
-
-  function answerHistory(text) {
-    if (containsAny(text, ["history", "historian", "historical sources"])) {
-      return "HISTORY: STUDYING THE PAST\n\n" +
-        "History is the study of past people, events, and societies.\n\n" +
-        "Historians examine evidence such as letters, photographs, " +
-        "artifacts, official records, and oral histories.\n\n" +
-        "To study an event, ask:\n" +
-        "1. What happened?\n" +
-        "2. When and where did it happen?\n" +
-        "3. Who was involved?\n" +
-        "4. What caused it?\n" +
-        "5. What changed afterward?";
-    }
-
-    if (containsAny(text, ["ancient egypt", "egyptian pyramids"])) {
-      return "HISTORY: ANCIENT EGYPT\n\n" +
-        "Ancient Egypt was a civilization that developed along " +
-        "the Nile River in northeastern Africa.\n\n" +
-        "The Nile supported farming and transportation. " +
-        "Egyptian society is known for its pyramids, writing " +
-        "system, art, and pharaohs.\n\n" +
-        "Historians study archaeological evidence to learn " +
-        "how ancient Egyptians lived.";
-    }
-
-    if (containsAny(text, ["civil rights movement"])) {
-      return "HISTORY: THE CIVIL RIGHTS MOVEMENT\n\n" +
-        "The modern U.S. Civil Rights Movement sought to end " +
-        "racial segregation and discrimination and to secure " +
-        "equal rights under the law.\n\n" +
-        "Activists used methods including marches, boycotts, " +
-        "organizing, and legal challenges.\n\n" +
-        "Important historical events should be studied using " +
-        "reliable sources and attention to different perspectives.";
-    }
-
-    return null;
-  }
-
-  /* ---------------- GEOGRAPHY ---------------- */
-
-  function answerGeography(text) {
-    if (containsAny(text, ["continent", "continents"])) {
-      return "GEOGRAPHY: THE CONTINENTS\n\n" +
-        "The seven-continent model lists:\n" +
-        "1. Africa\n2. Antarctica\n3. Asia\n4. Europe\n" +
-        "5. North America\n6. South America\n7. Australia\n\n" +
-        "Different educational traditions sometimes group " +
-        "continents differently.";
-    }
-
-    if (containsAny(text, ["equator"])) {
-      return "GEOGRAPHY: THE EQUATOR\n\n" +
-        "The Equator is an imaginary line around Earth at " +
-        "0 degrees latitude.\n\n" +
-        "It divides Earth into the Northern and Southern Hemispheres.\n" +
-        "Places near the Equator generally receive strong sunlight " +
-        "throughout the year.";
-    }
-
-    if (containsAny(text, ["weather", "climate"])) {
-      return "GEOGRAPHY: WEATHER AND CLIMATE\n\n" +
-        "Weather describes atmospheric conditions over a short time, " +
-        "such as today's temperature or rainfall.\n\n" +
-        "Climate describes typical weather patterns in a region " +
-        "over many years.\n\n" +
-        "Remember: weather changes daily; climate describes " +
-        "long-term patterns.";
-    }
-
-    if (containsAny(text, ["map", "compass directions"])) {
-      return "GEOGRAPHY: MAPS AND DIRECTIONS\n\n" +
-        "Maps represent places and features of Earth's surface.\n\n" +
-        "The four main compass directions are:\n" +
-        "North, South, East, and West.\n\n" +
-        "A map key explains symbols, while a scale compares " +
-        "map distances with real-world distances.";
-    }
-
-    if (containsAny(text, ["river", "mountain", "landform"])) {
-      return "GEOGRAPHY: PHYSICAL FEATURES\n\n" +
-        "Physical geography studies natural features of Earth.\n\n" +
-        "River: flowing water in a channel.\n" +
-        "Mountain: a high area of land.\n" +
-        "Valley: low land between hills or mountains.\n" +
-        "Plain: a broad area of relatively flat land.";
-    }
-
-    return null;
-  }
-
-  /* ---------------- SOCIAL STUDIES ---------------- */
-
-  function answerSocialStudies(text) {
-    if (containsAny(text, ["community"])) {
-      return "SOCIAL STUDIES: COMMUNITY\n\n" +
-        "A community is a group of people who live in the same " +
-        "area or share common interests.\n\n" +
-        "Communities often work together to solve problems, " +
-        "provide services, and support their members.\n\n" +
-        "Examples of community services include libraries, " +
-        "schools, hospitals, and fire departments.";
-    }
-
-    if (containsAny(text, ["government", "democracy"])) {
-      return "SOCIAL STUDIES: GOVERNMENT AND DEMOCRACY\n\n" +
-        "Government is the system responsible for making " +
-        "decisions and carrying out public responsibilities.\n\n" +
-        "In a democracy, citizens have a role in choosing leaders " +
-        "or influencing public decisions, often through elections.\n\n" +
-        "Government structures and citizens' rights differ by country.";
-    }
-
-    if (containsAny(text, ["citizen", "citizenship", "responsibilities"])) {
-      return "SOCIAL STUDIES: CITIZENSHIP\n\n" +
-        "Citizenship involves membership in a political community " +
-        "and the rights and responsibilities connected with it.\n\n" +
-        "Examples of civic participation include learning about " +
-        "public issues, helping the community, and voting when eligible.\n\n" +
-        "Specific rights and duties depend on a country's laws.";
-    }
-
-    if (containsAny(text, ["culture", "tradition"])) {
-      return "SOCIAL STUDIES: CULTURE\n\n" +
-        "Culture includes the shared customs, languages, beliefs, " +
-        "arts, food, and traditions of a group of people.\n\n" +
-        "Cultures can be different and can change over time.\n" +
-        "Learning about cultures helps us understand and respect others.";
-    }
-
-    if (containsAny(text, ["natural resources", "resources"])) {
-      return "SOCIAL STUDIES: NATURAL RESOURCES\n\n" +
-        "Natural resources are materials and features from nature " +
-        "that people use.\n\n" +
-        "Examples include water, soil, forests, sunlight, and minerals.\n\n" +
-        "Responsible use helps protect resources for future generations.";
-    }
-
-    return null;
-  }
-
-  /* ---------------- GENERAL RESPONSE ---------------- */
-
-  function buildFallback(question) {
-    return "KAAKYIRE LEARNING AI\n\n" +
-      "Subject: " + state.subject + "\n" +
-      "Learning level: " + state.level + "\n\n" +
-      "Your question: " + question + "\n\n" +
-      "I have received your question, but this local learning " +
-      "engine does not yet have a prepared explanation for it.\n\n" +
-      "To answer a much wider range of Mathematics, English, " +
-      "Science, History, Geography, and Social Studies questions, " +
-      "Kaakyire needs a secure connection to a real AI model.\n\n" +
-      "This website code alone cannot create that AI connection.";
-  }
-
-  return { initialize };
-})();
-
-// Start the application after the page has loaded.
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", Kaakyire.initialize);
-} else {
-  Kaakyire.initialize();
+});
