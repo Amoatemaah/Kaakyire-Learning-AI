@@ -1,46 +1,291 @@
+/* ==========================================
+   KAAKYIRE LEARNING AI
+   Responsive Website Styles
+   ========================================== */
+
+:root {
+  --primary: #2855c5;
+  --primary-dark: #193c96;
+  --primary-light: #eaf0ff;
+  --page-background: #f4f7fc;
+  --surface: #ffffff;
+  --text: #17243b;
+  --muted: #65738a;
+  --border: #dce4f0;
+  --success: #137653;
+  --shadow: 0 8px 28px rgba(27, 51, 94, 0.08);
+  --radius: 16px;
+}
+
+/* Reset */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-font-family: Arial, sans-serif;
-background-color: #f4f7f4;
-margin: 0;
-padding: 0;
-}
-
-.container {
-  max-width: 700px;
-  margin: 500px auto;
-  background-color: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-hl 
-color: #0078d7;
-}
-
-input {
-  width: 70%;
-  padding 10px;
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, Arial, Helvetica, sans-serif;
   font-size: 16px;
+  line-height: 1.65;
+  color: var(--text);
+  background: var(--page-background);
+}
+
+button,
+textarea,
+select,
+input {
+  font: inherit;
 }
 
 button {
-  padding: 10px 20px;
-  background-color: #0078d7;
-  color: white;
-  border: none;
-  border-radius: 5px;
   cursor: pointer;
 }
 
-button:hover {
-  background-color: #005ea6;
+/* Header */
+header {
+  padding: 36px 20px;
+  text-align: center;
+  color: #ffffff;
+  background: linear-gradient(135deg, #2149ae, #4778e6);
 }
 
-#answer {
-  margin-top: 20px;
-  paddind: 15px;
-  background: eef3f3;
-  border-radius: 5px;
+header h1 {
+  margin: 0 0 8px;
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  line-height: 1.2;
 }
 
+header p {
+  margin: 5px 0;
+  color: #edf2ff;
+  font-size: 16px;
+}
+
+/* Main page */
+main {
+  width: min(920px, 92%);
+  margin: 32px auto;
+}
+
+section.panel {
+  margin-bottom: 24px;
+  padding: 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+h2 {
+  margin: 0 0 12px;
+  font-size: 23px;
+  line-height: 1.35;
+}
+
+p {
+  margin-top: 8px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* Form labels */
+label {
+  display: block;
+  margin: 20px 0 9px;
+  font-weight: 700;
+}
+
+/* Subject and choice buttons */
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0 22px;
+}
+
+.choices button {
+  flex: 1 1 145px;
+  min-height: 46px;
+  padding: 11px 14px;
+  color: var(--primary);
+  background: #ffffff;
+  border: 1px solid #ccd8f2;
+  border-radius: 10px;
+  font-weight: 650;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.choices button:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+}
+
+.choices button.selected {
+  color: #ffffff;
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.choices button:active {
+  transform: scale(0.98);
+}
+
+/* Question input and difficulty selector */
+textarea,
+select {
+  display: block;
+  width: 100%;
+  padding: 14px 15px;
+  color: var(--text);
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  outline: none;
+}
+
+textarea {
+  min-height: 135px;
+  resize: vertical;
+}
+
+textarea::placeholder {
+  color: #8a96aa;
+}
+
+textarea:focus,
+select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(40, 85, 197, 0.13);
+}
+
+/* Ask button */
+.ask-button {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  margin-top: 18px;
+  padding: 13px 20px;
+  color: #ffffff;
+  background: var(--primary);
+  border: none;
+  border-radius: 11px;
+  font-size: 17px;
+  font-weight: 750;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.ask-button:hover {
+  background: var(--primary-dark);
+}
+
+.ask-button:active {
+  transform: translateY(1px);
+}
+
+.ask-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+/* Answer area */
+.answer {
+  min-height: 120px;
+  padding: 20px;
+  color: var(--text);
+  background: #f7f9fe;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: 10px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.8;
+}
+
+/* Status messages */
+.status {
+  min-height: 24px;
+  margin: 12px 0 0;
+  color: var(--success);
+  font-size: 14px;
+}
+
+/* Footer */
+footer {
+  padding: 20px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Keyboard accessibility */
+button:focus-visible {
+  outline: 3px solid #9db8ff;
+  outline-offset: 3px;
+}
+
+/* Tablet and mobile layouts */
+@media (max-width: 650px) {
+  header {
+    padding: 28px 16px;
+  }
+
+  main {
+    width: 94%;
+    margin: 20px auto;
+  }
+
+  section.panel {
+    padding: 19px;
+    margin-bottom: 18px;
+  }
+
+  h2 {
+    font-size: 21px;
+  }
+
+  .choices {
+    gap: 8px;
+  }
+
+  .choices button {
+    flex: 1 1 42%;
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  textarea {
+    min-height: 120px;
+  }
+
+  .answer {
+    padding: 15px;
+  }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
