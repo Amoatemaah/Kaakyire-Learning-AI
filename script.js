@@ -1,392 +1,542 @@
-from pathlib import Path
-import zipfile, textwrap, os
+/* ==========================================
+   KAAKYIRE LEARNING AI
+   Student Learning Assistant
+   ========================================== */
 
-root = Path("/mnt/data/kaakyire-learning-ai-full-starter")
-root.mkdir(parents=True, exist_ok=True)
+document.addEventListener("DOMContentLoaded", function () {
+  "use strict";
 
-files = {
-"index.html": r'''<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Kaakyire Learning AI helps students learn step by step.">
-  <title>Kaakyire Learning AI</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <header class="site-header">
-    <a class="brand" href="#" aria-label="Kaakyire Learning AI home">
-      <span class="brand-mark">K</span>
-      <span>Kaakyire <strong>Learning AI</strong></span>
-    </a>
-    <span class="header-note">Learn one step at a time</span>
-  </header>
+  // Find the question box in your webpage.
+  const questionInput =
+    document.querySelector("#questionInput") ||
+    document.querySelector("#userQuestion") ||
+    document.querySelector("#question") ||
+    document.querySelector("#user-input") ||
+    document.querySelector("#userInput") ||
+    document.querySelector("textarea") ||
+    document.querySelector('input[type="text"]');
 
-  <main class="page">
-    <section class="hero">
-      <p class="eyebrow">YOUR LEARNING COMPANION</p>
-      <h1>What would you like to learn today?</h1>
-      <p class="hero-copy">Ask a school question, explore a difficult topic, or get help working through a problem.</p>
-    </section>
+  // Find the Ask button.
+  const askButton =
+    document.querySelector("#askButton") ||
+    document.querySelector("#askBtn") ||
+    document.querySelector("#submitQuestion") ||
+    document.querySelector("#ask-kaakyire") ||
+    document.querySelector("#sendButton") ||
+    Array.from(document.querySelectorAll("button")).find(
+      button => /ask kaakyire|ask question|submit question|^ask$|^send$/i
+        .test(button.textContent.trim())
+    );
 
-    <section class="chat-panel" aria-label="Learning assistant">
-      <div class="subject-list" aria-label="Try a subject">
-        <button class="subject-chip" type="button" data-prompt="Explain fractions with an example.">Mathematics</button>
-        <button class="subject-chip" type="button" data-prompt="Explain photosynthesis in simple words.">Science</button>
-        <button class="subject-chip" type="button" data-prompt="What is a noun? Give examples.">English</button>
-        <button class="subject-chip" type="button" data-prompt="What is democracy? Explain simply.">Social Studies</button>
-        <button class="subject-chip" type="button" data-prompt="What is history and how do historians study the past?">History</button>
-      </div>
+  // Find the answer area.
+  let answerArea =
+    document.querySelector("#answerArea") ||
+    document.querySelector("#answer") ||
+    document.querySelector("#response") ||
+    document.querySelector("#aiResponse") ||
+    document.querySelector("#answer-box") ||
+    document.querySelector("#result");
 
-      <form id="question-form">
-        <label for="question">Your school question</label>
-        <textarea id="question" name="question" rows="4" maxlength="5000" placeholder="For example: Solve 12 × 8 and explain each step." required></textarea>
-        <div class="form-bottom">
-          <span class="hint">Be specific so Kaakyire can help you better.</span>
-          <button id="ask-button" class="primary-button" type="submit">Ask Kaakyire <span aria-hidden="true">→</span></button>
-        </div>
-      </form>
+  // Create an answer area if one is missing.
+  if (!answerArea) {
+    answerArea = document.createElement("div");
+    answerArea.id = "answerArea";
+    answerArea.setAttribute("aria-live", "polite");
+    answerArea.style.cssText =
+      "margin-top:16px;padding:16px;border-radius:12px;" +
+      "background:#f4f8ff;color:#172554;white-space:pre-wrap;" +
+      "line-height:1.7;display:none;";
 
-      <section id="answer-section" class="answer-section" aria-live="polite" hidden>
-        <div class="answer-heading">
-          <span class="answer-icon" aria-hidden="true">✦</span>
-          <h2>Kaakyire's answer</h2>
-        </div>
-        <p id="status" class="status" hidden></p>
-        <div id="answer" class="answer-text"></div>
-      </section>
-    </section>
+    const parent = questionInput?.parentElement ||
+      document.querySelector("main") ||
+      document.body;
 
-    <p class="privacy-note">Learning support for students, teachers, and parents. Check important answers with a trusted teacher or reliable source.</p>
-  </main>
+    parent.appendChild(answerArea);
+  }
 
-  <footer class="site-footer">© <span id="year"></span> Kaakyire Learning AI</footer>
-  <script src="script.js" defer></script>
-</body>
-</html>
-''',
-"style.css": r''':root {
-  --ink: #192b3a;
-  --muted: #617383;
-  --brand: #176b62;
-  --brand-dark: #10564f;
-  --soft: #eaf5f2;
-  --paper: #ffffff;
-  --background: #f4f8f7;
-  --border: #d9e5e2;
-  --shadow: 0 16px 44px rgba(25, 54, 61, .08);
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0; color: var(--ink); background: var(--background);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  line-height: 1.6;
-}
-.site-header {
-  min-height: 76px; display: flex; align-items: center; justify-content: space-between;
-  gap: 16px; padding: 14px clamp(18px, 5vw, 64px); background: var(--paper);
-  border-bottom: 1px solid var(--border);
-}
-.brand { display: inline-flex; align-items: center; gap: 11px; color: var(--ink); text-decoration: none; font-size: 1.02rem; }
-.brand strong { color: var(--brand); }
-.brand-mark {
-  display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px;
-  color: white; background: var(--brand); font-size: 1.3rem; font-weight: 800;
-}
-.header-note { color: var(--muted); font-size: .92rem; }
-.page { width: min(920px, calc(100% - 32px)); margin: 0 auto; padding: 56px 0 32px; }
-.hero { text-align: center; margin: 0 auto 30px; max-width: 700px; }
-.eyebrow { color: var(--brand); font-size: .76rem; letter-spacing: .16em; font-weight: 800; margin: 0 0 10px; }
-h1 { font-size: clamp(2rem, 5vw, 3.35rem); line-height: 1.12; letter-spacing: -.04em; margin: 0 0 15px; }
-.hero-copy { color: var(--muted); font-size: 1.08rem; margin: 0 auto; max-width: 600px; }
-.chat-panel { background: var(--paper); border: 1px solid var(--border); border-radius: 24px; padding: clamp(18px, 4vw, 34px); box-shadow: var(--shadow); }
-.subject-list { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 26px; }
-.subject-chip {
-  border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--brand-dark);
-  padding: 9px 14px; font: inherit; font-size: .9rem; cursor: pointer;
-}
-.subject-chip:hover, .subject-chip:focus-visible { background: var(--soft); border-color: var(--brand); }
-label { display: block; font-weight: 750; margin-bottom: 9px; }
-textarea {
-  width: 100%; resize: vertical; min-height: 125px; border: 1px solid #cbd9d6; border-radius: 14px;
-  padding: 15px; color: var(--ink); background: #fcfefd; font: inherit; font-size: 1rem;
-}
-textarea:focus { outline: 3px solid rgba(23, 107, 98, .16); border-color: var(--brand); }
-.form-bottom { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 13px; }
-.hint { color: var(--muted); font-size: .85rem; }
-.primary-button {
-  border: 0; border-radius: 12px; padding: 12px 18px; background: var(--brand); color: white;
-  font: inherit; font-weight: 750; cursor: pointer; white-space: nowrap;
-}
-.primary-button:hover { background: var(--brand-dark); }
-.primary-button:disabled { opacity: .65; cursor: wait; }
-.answer-section { margin-top: 30px; border-top: 1px solid var(--border); padding-top: 24px; }
-.answer-heading { display: flex; align-items: center; gap: 10px; }
-.answer-heading h2 { font-size: 1.12rem; margin: 0; }
-.answer-icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; color: var(--brand); background: var(--soft); }
-.status { color: var(--muted); font-size: .9rem; margin: 12px 0 0; }
-.answer-text { white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 14px; }
-.answer-text p { margin: 0 0 12px; }
-.privacy-note { color: var(--muted); font-size: .86rem; text-align: center; margin: 24px auto 0; max-width: 700px; }
-.site-footer { text-align: center; padding: 18px; color: var(--muted); font-size: .84rem; }
-@media (max-width: 600px) {
-  .site-header { align-items: flex-start; flex-direction: column; gap: 7px; }
-  .page { padding-top: 36px; }
-  .form-bottom { align-items: stretch; flex-direction: column; }
-  .primary-button { width: 100%; }
-  .hint { order: 2; }
-  .chat-panel { border-radius: 18px; }
-}
-''',
-"script.js": r'''const form = document.getElementById("question-form");
-const questionInput = document.getElementById("question");
-const askButton = document.getElementById("ask-button");
-const answerSection = document.getElementById("answer-section");
-const answerBox = document.getElementById("answer");
-const statusBox = document.getElementById("status");
+  let selectedSubject = "General";
+  let selectedDifficulty = "Medium";
 
-document.getElementById("year").textContent = new Date().getFullYear();
+  function showAnswer(message) {
+    answerArea.textContent = message;
+    answerArea.style.display = "block";
+  }
 
-document.querySelectorAll("[data-prompt]").forEach((button) => {
-  button.addEventListener("click", () => {
-    questionInput.value = button.dataset.prompt || "";
-    questionInput.focus();
+  // Connect Easy, Medium, and Hard buttons.
+  document.querySelectorAll(
+    "[data-difficulty], .difficulty-btn, .difficulty-button"
+  ).forEach(button => {
+    button.addEventListener("click", function () {
+      selectedDifficulty =
+        button.dataset.difficulty ||
+        button.textContent.trim();
+
+      selectedDifficulty =
+        selectedDifficulty.charAt(0).toUpperCase() +
+        selectedDifficulty.slice(1).toLowerCase();
+
+      showAnswer(
+        "Difficulty selected: " + selectedDifficulty +
+        ". Enter your school question and click Ask Kaakyire."
+      );
+    });
   });
-});
 
-function showAnswer(text, status = "") {
-  answerSection.hidden = false;
-  answerBox.textContent = text;
-  statusBox.textContent = status;
-  statusBox.hidden = !status;
-}
-
-function offlineAnswer(question) {
-  const q = question.toLowerCase();
-
-  // A small offline helper is available if the AI server has not been configured.
-  // It is intentionally clear that this is not a full AI response.
-  const math = q.match(/(-?\d+(?:\.\d+)?)\s*([+\-×x*/÷])\s*(-?\d+(?:\.\d+)?)/);
-  if (math) {
-    const a = Number(math[1]);
-    const op = math[2];
-    const b = Number(math[3]);
-    let result;
-    if (op === "+") result = a + b;
-    if (op === "-") result = a - b;
-    if (["×", "x", "*"].includes(op)) result = a * b;
-    if (["÷", "/"].includes(op)) {
-      if (b === 0) return "A number cannot be divided by zero.";
-      result = a / b;
-    }
-    if (result !== undefined) {
-      return `${a} ${op} ${b} = ${result}\n\nStep 1: Identify the two numbers: ${a} and ${b}.\nStep 2: Apply the operation ${op}.\nStep 3: The answer is ${result}.\n\nThis is an offline calculation, not a full AI explanation.`;
-    }
-  }
-
-  const prepared = [
-    [/photosynthesis/, "Photosynthesis is how green plants make food using sunlight, water, and carbon dioxide. The process makes sugar and releases oxygen."],
-    [/gravity/, "Gravity is the force of attraction between objects. Earth's gravity pulls objects toward the ground."],
-    [/\bnoun\b/, "A noun names a person, place, thing, or idea. Examples: teacher, school, book, happiness."],
-    [/\bverb\b/, "A verb expresses an action or state of being. Examples: run, write, think, is, are."],
-    [/water cycle/, "The water cycle is the movement of water around Earth. Key stages include evaporation, condensation, and precipitation."],
-    [/democracy/, "Democracy is a system of government in which people have a role in choosing their leaders, often through voting."],
-    [/american revolution/, "The American Revolution was the struggle in which thirteen British colonies in North America fought for independence. The Declaration of Independence was adopted in 1776."]
+  // Connect subject buttons.
+  const subjects = [
+    "Mathematics", "Math", "Science", "English",
+    "History", "Social Studies", "Geography",
+    "Biology", "Chemistry", "Physics", "Reading",
+    "Writing", "Grammar", "Computer Science",
+    "Art", "Music", "Economics", "Civics",
+    "Health", "General Knowledge"
   ];
-  for (const [pattern, text] of prepared) {
-    if (pattern.test(q)) return `${text}\n\nThis is a prepared offline answer. Connect an AI service for broader questions.`;
-  }
-  return "The AI service is not connected yet, so I cannot generate a full answer to that question. You can still test simple arithmetic and a few prepared topics. To enable broader answers, set up the secure server and an AI API key. Do not put an API key in this browser code.";
-}
 
-async function askKaakyire(question) {
-  // The backend route keeps the API key on the server, never in the browser.
-  try {
-    const response = await fetch("/api/ask", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question })
+  document.querySelectorAll(
+    "[data-subject], .subject-btn, .subject-button"
+  ).forEach(button => {
+    button.addEventListener("click", function () {
+      selectedSubject =
+        button.dataset.subject || button.textContent.trim();
+
+      if (selectedSubject.toLowerCase() === "math") {
+        selectedSubject = "Mathematics";
+      }
+
+      showAnswer(
+        selectedSubject + " selected!\n\n" +
+        "Type your question in the question box, then click Ask Kaakyire."
+      );
     });
-    const data = await response.json().catch(() => ({}));
-    if (response.ok && typeof data.answer === "string" && data.answer.trim()) {
-      return { answer: data.answer, status: "AI-powered response" };
+  });
+
+  // Also recognize subject buttons that have no special class.
+  document.querySelectorAll("button").forEach(button => {
+    const label = button.textContent.trim();
+
+    if (subjects.some(subject =>
+      subject.toLowerCase() === label.toLowerCase()
+    )) {
+      button.addEventListener("click", function () {
+        selectedSubject =
+          label.toLowerCase() === "math" ? "Mathematics" : label;
+
+        showAnswer(
+          selectedSubject + " selected!\n\n" +
+          "Enter your question to get started."
+        );
+      });
     }
-    if (response.status !== 404 && response.status !== 501) {
-      throw new Error(data.error || "The AI service could not answer right now.");
+  });
+
+  // Simple math helper for arithmetic questions.
+  function solveArithmetic(question) {
+    const cleaned = question
+      .replace(/,/g, "")
+      .replace(/,/g, "")
+      .replace(/what is|calculate|solve|find the answer to|evaluate/gi, "")
+      .replace(/[?=$]/g, "")
+      .trim();
+
+    if (!/^[\d\s()+\-*/%.]+$/.test(cleaned)) {
+      return null;
     }
-  } catch (error) {
-    // If opened as a static-only website, continue with offline demo behavior.
-    if (error instanceof TypeError) {
-      return { answer: offlineAnswer(question), status: "Offline/demo mode" };
+
+    if (!/\d/.test(cleaned) ||
+        !/[+\-*/%]/.test(cleaned)) {
+      return null;
     }
-    if (error.message && !/fetch|network/i.test(error.message)) {
-      return { answer: offlineAnswer(question), status: "Offline/demo mode — " + error.message };
+
+    // Use a restricted arithmetic parser, not eval().
+    const tokens = cleaned.match(
+      /\d+(?:\.\d+)?|[()+\-*/%]/g
+    );
+
+    if (!tokens || tokens.join("") !== cleaned.replace(/\s/g, "")) {
+      return null;
+    }
+
+    let position = 0;
+
+    function expression() {
+      let value = term();
+
+      while (tokens[position] === "+" ||
+             tokens[position] === "-") {
+        const operator = tokens[position++];
+        const right = term();
+        value = operator === "+" ? value + right : value - right;
+      }
+
+      return value;
+    }
+
+    function term() {
+      let value = factor();
+
+      while (["*", "/", "%"].includes(tokens[position])) {
+        const operator = tokens[position++];
+        const right = factor();
+
+        if ((operator === "/" || operator === "%") && right === 0) {
+          throw new Error("Cannot divide by zero.");
+        }
+
+        if (operator === "*") value *= right;
+        if (operator === "/") value /= right;
+        if (operator === "%") value %= right;
+      }
+
+      return value;
+    }
+
+    function factor() {
+      const token = tokens[position++];
+
+      if (token === "-") return -factor();
+      if (token === "+") return factor();
+
+      if (token === "(") {
+        const value = expression();
+
+        if (tokens[position++] !== ")") {
+          throw new Error("Please check your parentheses.");
+        }
+
+        return value;
+      }
+
+      const value = Number(token);
+
+      if (!Number.isFinite(value)) {
+        throw new Error("Please enter a valid math question.");
+      }
+
+      return value;
+    }
+
+    try {
+      const answer = expression();
+
+      if (position !== tokens.length || !Number.isFinite(answer)) {
+        return null;
+      }
+
+      return "Let's solve it step by step.\n\n" +
+        "Question: " + question + "\n\n" +
+        "Answer: " + Number(answer.toFixed(8)) +
+        "\n\nCheck each operation carefully to understand how we got the answer.";
+    } catch (error) {
+      if (error.message === "Cannot divide by zero.") {
+        return "Division by zero is undefined. Please check the question.";
+      }
+
+      return null;
     }
   }
-  return { answer: offlineAnswer(question), status: "Offline/demo mode" };
-}
 
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const question = questionInput.value.trim();
-  if (!question) {
-    showAnswer("Please type a school question first.");
-    questionInput.focus();
-    return;
+  // Built-in teaching responses for common school questions.
+  function getTeachingAnswer(question) {
+    const q = question.toLowerCase().trim();
+    const subject = selectedSubject.toLowerCase();
+
+    if (/^(hi|hello|hey|good morning|good afternoon|good evening)\b/.test(q)) {
+      return "Hello! Welcome to Kaakyire Learning AI.\n\n" +
+        "I can help you learn Mathematics, Science, English, History, " +
+        "Social Studies, Geography, and other school subjects.\n\n" +
+        "What would you like to learn today?";
+    }
+
+    if (/who are you|what is kaakyire|what can you do/.test(q)) {
+      return "I am Kaakyire Learning AI, your learning assistant.\n\n" +
+        "I help students understand school subjects, practise skills, " +
+        "and work through homework step by step.\n\n" +
+        "Choose a subject and enter your question to begin.";
+    }
+
+    if (/^(thank you|thanks)\b/.test(q)) {
+      return "You're welcome! Keep asking questions and practising. " +
+        "Learning takes time, and every question is an opportunity to grow.";
+    }
+
+    if (/continent/.test(q)) {
+      return "There are seven commonly recognized continents:\n\n" +
+        "1. Africa\n2. Antarctica\n3. Asia\n4. Europe\n" +
+        "5. North America\n6. South America\n7. Australia\n\n" +
+        "A continent is one of Earth's large land areas.";
+    }
+
+    if (/capital of (ghana|ghana's)/.test(q)) {
+      return "The capital of Ghana is Accra. Accra is an important " +
+        "centre for government, business, education, and culture.";
+    }
+
+    if (/capital of (the )?united states|capital of america/.test(q)) {
+      return "The capital of the United States is Washington, D.C. " +
+        "It is where the White House, the U.S. Capitol, and many " +
+        "federal government offices are located.";
+    }
+
+    if (/photosynthesis/.test(q)) {
+      return "Photosynthesis is the process plants use to make food.\n\n" +
+        "1. Roots absorb water from the soil.\n" +
+        "2. Leaves take in carbon dioxide from the air.\n" +
+        "3. Chlorophyll captures energy from sunlight.\n" +
+        "4. The plant uses these materials to make glucose and releases oxygen.\n\n" +
+        "Remember: sunlight, water, and carbon dioxide are essential " +
+        "for photosynthesis.";
+    }
+
+    if (/water cycle/.test(q)) {
+      return "The water cycle is the continuous movement of water " +
+        "between Earth's surface and the atmosphere.\n\n" +
+        "1. Evaporation: the Sun heats water and turns it into vapour.\n" +
+        "2. Condensation: vapour cools and forms clouds.\n" +
+        "3. Precipitation: water falls as rain, snow, sleet, or hail.\n" +
+        "4. Collection: water gathers in rivers, lakes, oceans, and the ground.";
+    }
+
+    if (/gravity/.test(q)) {
+      return "Gravity is a force of attraction between objects with mass.\n\n" +
+        "Earth's gravity pulls objects toward its centre. This is why " +
+        "a ball falls back to the ground when you throw it upward.";
+    }
+
+    if (/states of matter|solid liquid gas/.test(q)) {
+      return "The three common states of matter are:\n\n" +
+        "1. Solid: has a definite shape and volume, like ice.\n" +
+        "2. Liquid: has a definite volume but takes the shape of its container, like water.\n" +
+        "3. Gas: spreads out to fill its container, like water vapour.\n\n" +
+        "Heating or cooling can change matter from one state to another.";
+    }
+
+    if (/human body|organs of the body/.test(q)) {
+      return "The human body has many organs that work together.\n\n" +
+        "The heart pumps blood, the lungs help us breathe, the brain " +
+        "controls many activities, the stomach helps digest food, and " +
+        "the kidneys filter waste from the blood.";
+    }
+
+    if (/planet|solar system/.test(q)) {
+      return "Our solar system has eight recognized planets:\n\n" +
+        "Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune.\n\n" +
+        "They orbit the Sun. Earth is the planet where we live.";
+    }
+
+    if (/democracy/.test(q)) {
+      return "Democracy is a system of government in which people have " +
+        "a role in making decisions, often by voting for representatives. " +
+        "Free elections, participation, and the rule of law are important " +
+        "principles of a democratic system.";
+    }
+
+    if (/ghana|independence day/.test(q) && /history|independence|1957/.test(q)) {
+      return "Ghana gained independence from British colonial rule on " +
+        "March 6, 1957. Kwame Nkrumah became the country's first prime minister " +
+        "after independence and later its first president.";
+    }
+
+    if (/noun/.test(q)) {
+      return "A noun is a word that names a person, place, thing, or idea.\n\n" +
+        "Examples:\n" +
+        "- Person: teacher\n- Place: school\n- Thing: book\n- Idea: courage\n\n" +
+        "Example sentence: The student reads a book. " +
+        "Here, 'student' and 'book' are nouns.";
+    }
+
+    if (/verb/.test(q)) {
+      return "A verb expresses an action or a state of being.\n\n" +
+        "Examples: run, write, think, is, are.\n\n" +
+        "In the sentence 'The girl reads a book,' the word 'reads' is the verb.";
+    }
+
+    if (/adjective/.test(q)) {
+      return "An adjective describes a noun or pronoun.\n\n" +
+        "Examples: a tall building, a blue sky, a kind teacher.\n\n" +
+        "In 'The red ball bounced,' the word 'red' is an adjective.";
+    }
+
+    if (/adverb/.test(q)) {
+      return "An adverb often describes a verb, adjective, or another adverb.\n\n" +
+        "Examples: She ran quickly. He spoke softly. The test was very difficult.\n\n" +
+        "'Quickly,' 'softly,' and 'very' are adverbs in these examples.";
+    }
+
+    if (/punctuation|comma|apostrophe/.test(q)) {
+      return "Punctuation helps make writing clear.\n\n" +
+        "- Period (.): ends a statement.\n" +
+        "- Question mark (?): ends a direct question.\n" +
+        "- Comma (,): separates items or parts of a sentence.\n" +
+        "- Apostrophe ('): can show possession or missing letters.\n\n" +
+        "Example: Ama's book is on the table.";
+    }
+
+    if (/mean|meaning|define|definition|what is|what are|explain/.test(q)) {
+      if (subject.includes("geography")) {
+        return "Geography is the study of Earth's places, environments, " +
+          "landforms, people, and how they interact. It includes physical " +
+          "geography, such as mountains and rivers, and human geography, " +
+          "such as cities and population.";
+      }
+
+      if (subject.includes("history")) {
+        return "History is the study of past events and people. " +
+          "Historians use evidence such as documents, photographs, " +
+          "artefacts, and oral accounts to understand the past.";
+      }
+
+      if (subject.includes("social")) {
+        return "Social Studies explores people, communities, history, " +
+          "geography, government, economics, and citizenship. It helps us " +
+          "understand how societies work and how people interact.";
+      }
+
+      if (subject.includes("science") ||
+          ["biology", "chemistry", "physics"].some(s => subject.includes(s))) {
+        return "Science is the systematic study of the natural world. " +
+          "Scientists ask questions, make observations, test ideas, " +
+          "collect evidence, and use that evidence to develop explanations.\n\n" +
+          "Please include the specific science topic so I can help you more.";
+      }
+
+      if (subject.includes("history")) {
+        return "History helps us understand past people, events, " +
+          "and changes over time. Please tell me the particular event " +
+          "or person you are studying.";
+      }
+    }
+
+    if (/^(\d+)\s*([+\-*/])\s*(\d+)\s*[?=]?$/.test(q) ||
+        /^(what is|calculate|solve)\s+[\d\s()+\-*/%.]+[?=]?$/.test(q)) {
+      const result = solveArithmetic(q);
+      if (result) return result;
+    }
+
+    // Helpful subject introductions when a specific answer is not available.
+    if (subject.includes("geography")) {
+      return "Let's study Geography!\n\n" +
+        "Geography covers continents, countries, capitals, maps, " +
+        "climate, landforms, rivers, oceans, and population.\n\n" +
+        "Please ask a specific question, such as 'What is the water cycle?' " +
+        "or 'What is the capital of Ghana?'";
+    }
+
+    if (subject.includes("history")) {
+      return "Let's explore History!\n\n" +
+        "History covers past events, civilizations, leaders, independence, " +
+        "and important changes in society.\n\n" +
+        "Tell me the person, country, or historical event you are studying.";
+    }
+
+    if (subject.includes("science")) {
+      return "Let's learn Science!\n\n" +
+        "Science includes biology (living things), chemistry (materials " +
+        "and how they change), and physics (forces, energy, and motion).\n\n" +
+        "Please enter a specific science question so we can work through it.";
+    }
+
+    if (subject.includes("english") ||
+        subject.includes("grammar") ||
+        subject.includes("writing")) {
+      return "Let's work on English!\n\n" +
+        "I can help with grammar, nouns, verbs, punctuation, spelling, " +
+        "reading comprehension, vocabulary, paragraphs, and essay structure.\n\n" +
+        "Enter the word, sentence, passage, or assignment you need help with.";
+    }
+
+    if (subject.includes("social")) {
+      return "Let's learn Social Studies!\n\n" +
+        "We can explore communities, citizenship, government, culture, " +
+        "history, geography, and economics.\n\n" +
+        "Please ask a specific question about your lesson.";
+    }
+
+    if (subject.includes("math")) {
+      return "Let's work on Mathematics!\n\n" +
+        "I can calculate many arithmetic expressions and explain " +
+        "basic operations. You can also ask about fractions, decimals, " +
+        "percentages, algebra, geometry, and word problems.\n\n" +
+        "For a word problem, type the full question.";
+    }
+
+    return "Thank you for asking Kaakyire Learning AI!\n\n" +
+      "I don't have a reliable built-in answer for that particular question yet.\n\n" +
+      "Try asking about a specific topic in Mathematics, Science, English, " +
+      "History, Social Studies, or Geography. For a wide range of new " +
+      "questions, we will need to connect an AI service.";
   }
 
-  askButton.disabled = true;
-  askButton.textContent = "Thinking…";
-  showAnswer("Let me work through your question…", "Preparing your answer");
-  try {
-    const result = await askKaakyire(question);
-    showAnswer(result.answer, result.status);
-  } finally {
-    askButton.disabled = false;
-    askButton.innerHTML = 'Ask Kaakyire <span aria-hidden="true">→</span>';
+  // Main question handler.
+  function askKaakyire() {
+    if (!questionInput) {
+      showAnswer(
+        "The question box could not be found.\n\n" +
+        "Please check that index.html contains a question input or textarea."
+      );
+      return;
+    }
+
+    const question = questionInput.value.trim();
+
+    if (!question) {
+      showAnswer("Please type your school question first.");
+      questionInput.focus();
+      return;
+    }
+
+    showAnswer("Kaakyire is thinking...");
+
+    window.setTimeout(function () {
+      const answer = getTeachingAnswer(question);
+
+      showAnswer(
+        "KAAKYIRE LEARNING AI\n" +
+        "Subject: " + selectedSubject + "\n" +
+        "Difficulty: " + selectedDifficulty + "\n\n" +
+        answer
+      );
+    }, 150);
   }
-});
-''',
-"server.js": r'''require("dotenv").config();
-const express = require("express");
-const path = require("path");
-const OpenAI = require("openai");
 
-const app = express();
-const port = process.env.PORT || 3000;
+  if (askButton) {
+    askButton.addEventListener("click", askKaakyire);
+  }
 
-app.use(express.json({ limit: "20kb" }));
-app.use(express.static(path.join(__dirname)));
-
-app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, aiConfigured: Boolean(process.env.OPENAI_API_KEY) });
-});
-
-app.post("/api/ask", async (req, res) => {
-  const question = typeof req.body?.question === "string" ? req.body.question.trim() : "";
-  if (!question) return res.status(400).json({ error: "Please enter a school question." });
-  if (question.length > 5000) return res.status(413).json({ error: "Please keep your question under 5,000 characters." });
-
-  if (!process.env.OPENAI_API_KEY) {
-    return res.status(501).json({
-      error: "The AI service is not configured. Add an API key on the server when you are ready."
+  // Allow students to press Enter to ask.
+  if (questionInput) {
+    questionInput.addEventListener("keydown", function (event) {
+      if (event.key === "Enter" && !event.shiftKey &&
+          questionInput.tagName !== "TEXTAREA") {
+        event.preventDefault();
+        askKaakyire();
+      }
     });
   }
 
-  try {
-    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    const response = await client.responses.create({
-      model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
-      instructions: [
-        "You are Kaakyire Learning AI, a friendly and patient educational assistant for students, teachers, and parents.",
-        "Help with Mathematics, Science, English, Social Studies, History, and other school subjects.",
-        "Explain concepts in simple language and give clear step-by-step reasoning appropriate to the learner.",
-        "For calculations, show the method and check the result. For homework, teach the method rather than only giving an unexplained answer.",
-        "Be respectful, encouraging, and honest about uncertainty. Never invent sources or facts.",
-        "Ask a short clarifying question when the question is too vague to answer safely or accurately.",
-        "Do not claim that you are a human teacher."
-      ].join(" "),
-      input: question,
-      max_output_tokens: 1200
-    });
+  // Support a form submission if the page uses a form.
+  const questionForm = questionInput?.closest("form");
 
-    const answer = response.output_text;
-    if (!answer || !answer.trim()) {
-      return res.status(502).json({ error: "No answer was returned. Please try again." });
-    }
-    return res.json({ answer });
-  } catch (error) {
-    console.error("AI request failed:", error?.message || error);
-    return res.status(502).json({
-      error: "Kaakyire could not get an AI answer right now. Check the server configuration and API account, then try again."
+  if (questionForm) {
+    questionForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+      askKaakyire();
     });
   }
-});
 
-app.listen(port, () => {
-  console.log(`Kaakyire Learning AI is running at http://localhost:${port}`);
-});
-''',
-"package.json": r'''{
-  "name": "kaakyire-learning-ai",
-  "version": "1.0.0",
-  "private": true,
-  "description": "Kaakyire Learning AI educational assistant",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "dependencies": {
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "openai": "^4.77.0"
+  // Show a useful message if the page's controls are not connected.
+  if (!questionInput) {
+    console.error(
+      "Kaakyire Learning AI: No question input was found. " +
+      "Check the input or textarea in index.html."
+    );
   }
-}
-''',
-".env.example": r'''# Copy this file to .env on your own computer/server when you are ready.
-# Put your secret key only in .env or your hosting provider's secret settings.
-# NEVER commit .env to GitHub or put the key in index.html or script.js.
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4.1-mini
-PORT=3000
-''',
-".gitignore": r'''node_modules/
-.env
-.DS_Store
-npm-debug.log*
-''',
-"README.md": r'''# Kaakyire Learning AI
 
-A responsive educational website for students, teachers, and parents.
+  if (!askButton && !questionForm) {
+    console.error(
+      "Kaakyire Learning AI: No Ask button or question form was found. " +
+      "Check the button in index.html."
+    );
+  }
 
-## What is included?
-
-- `index.html` — homepage, question form, answer area, subject prompt buttons
-- `style.css` — responsive layout for phones, tablets, and computers
-- `script.js` — browser behavior, offline demo answers, and secure calls to `/api/ask`
-- `server.js` — server endpoint that calls an AI model without exposing the secret key in the browser
-- `package.json` — server dependencies and start command
-- `.env.example` — example environment variables (contains no secret key)
-
-## Important
-
-The site can show a few prepared offline answers and calculate simple arithmetic without an API connection. To answer a wide range of new questions, you must run the server and configure a valid API key with available API billing/credits. ChatGPT subscriptions and API billing are separate.
-
-**Never place a secret API key in `index.html` or `script.js`, and never commit a real `.env` file to GitHub.**
-
-## Run locally
-
-1. Install Node.js 18 or newer.
-2. Download these project files to one folder.
-3. Open a terminal in that folder and run `npm install`.
-4. Copy `.env.example` to a new file named `.env`.
-5. When ready to use the AI feature, add your API key to `.env`:
-   `OPENAI_API_KEY=your_secret_key_here`
-6. Run `npm start`.
-7. Open `http://localhost:3000`.
-
-If no API key is configured, the site falls back to limited offline/demo answers.
-
-## Deployment
-
-This is a Node.js app, not just a static site. Deploy `server.js` to a host that supports Node.js. Set `OPENAI_API_KEY` and optionally `OPENAI_MODEL` in the host's private environment-variable settings. Do not publish the secret key. Check hosting and API pricing before enabling live AI responses.
-'''
-}
-
-for name, content in files.items():
-    (root / name).write_text(content, encoding="utf-8")
-
-zip_path = Path("/mnt/data/Kaakyire-Learning-AI-Full-Starter.zip")
-with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
-    for p in root.rglob("*"):
-        if p.is_file():
-            z.write(p, arcname=f"Kaakyire-Learning-AI/{p.relative_to(root)}")
-
-print("Created project files:")
-for name in files:
-    print(f"- {name}")
-print(f"\nZIP: {zip_path}")
+  console.log("Kaakyire Learning AI script loaded successfully.");
+});
