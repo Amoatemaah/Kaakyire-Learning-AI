@@ -1,727 +1,381 @@
+document.addEventListener("DOMContentLoaded", () => {
+  // KA AKYIRE LEARNING AI
+  // Educational learning assistant
+  // This version uses built-in educational answers.
+  // A connected AI service is needed for open-ended answers.
 
+  let selectedSubject = "general";
 
-We are building Kaakyire Learning AI
-Yes! ❤️ We are building Kaakyire Learning AI, and we will continue working on it together, step by step.
+  const questionInput = document.querySelector(
+    "#questionInput, #question, #userQuestion, #user-question, " +
+    "#question-input, input[name='question'], textarea[name='question'], " +
+    "textarea, input[type='text']"
+  );
 
-I understand what you want. You do not want a basic website that only displays a few buttons. You want a learning assistant that can help students understand their schoolwork and get useful answers.
+  const answerBox = document.querySelector(
+    "#answerBox, #answer, #response, #result, #aiResponse, " +
+    "#answer-box, #output, #chatResponse, [aria-live='polite']"
+  );
 
-Our goal for Kaakyire Learning AI
-PSLE Tuition Singapore | Best PSLE Tutors For Your Child
+  const form = document.querySelector(
+    "#questionForm, #askForm, #chatForm, form"
+  );
 
-1. Mathematics
+  const askButton = document.querySelector(
+    "#askButton, #askBtn, #submitQuestion, #sendButton, " +
+    "button[type='submit']"
+  );
 
-Fractions, multiplication, division, algebra, geometry, word problems, and step-by-step solutions.
+  const subjectNames = [
+    "mathematics", "math", "science", "english",
+    "social studies", "history", "geography",
+    "computer skills", "reading", "writing"
+  ];
 
-MindSpring Light – Admissions
-
-2. English
-
-Grammar, spelling, reading comprehension, essays, vocabulary, and writing assistance.
-
-Academic Life | Brighton College Abu Dhabi
-
-3. Science
-
-Biology, chemistry, physics, the human body, plants, animals, and scientific explanations.
-
-Infrastructures | St Therese's School, Padrauna
-
-4. Social Studies, History, and more
-
-Geography, government, world history, civics, homework, assignments, and study plans.
-
-Where we are now
-Your website homepage is opening, but Ask Kaakyire is not giving answers yet. We need to fix the JavaScript in script.js so the website can respond correctly.
-
-We also need to connect an AI service if we want Kaakyire to answer a wide variety of questions intelligently, rather than relying only on answers written into the code.
-
-Let's continue from where we stopped.
-
-You told me that you have not replaced the old script.js code yet.
-
-Are you ready to open script.js now so we can replace the old code with the complete version, step by step?
-
-For building AI apps with vector search, here’s a database option to consider.
-
-
-
-The one thing I need is the code for the script
-Yes! ❤️ Let's focus on the most important part: the complete script.js code for Kaakyire Learning AI.
-
-This version includes Mathematics, English, Science, Social Studies, History, homework help, essay writing, study plans, and step-by-step explanations. It also connects to an AI backend when one is configured. The built-in responses provide basic help if the AI service is not connected, but they cannot answer every possible question.
-
-Important: A JavaScript file in the browser cannot securely hold your private AI API key. For full AI-powered answers, we will connect it to a secure backend later.
-
-Step 1: Replace the code in script.js
-Open script.js, select all the old code, and replace it with the following.
-
-
-/* =========================================================
-   KAAKYIRE LEARNING AI
-   Main application script
-   Subjects: Mathematics, English, Science, Social Studies,
-   History, Geography, Homework, Essays and Study Plans
-   ========================================================= */
-
-"use strict";
-
-// ---------------------------------------------------------
-// 1. APPLICATION SETTINGS
-// ---------------------------------------------------------
-
-const KAAKYIRE_CONFIG = {
-  appName: "Kaakyire Learning AI",
-
-  // Leave empty until we create and deploy the secure backend.
-  // Example: "/api/ask"
-  apiEndpoint: "",
-
-  maxQuestionLength: 5000
-};
-
-const SUBJECTS = [
-  "Mathematics",
-  "English",
-  "Science",
-  "Social Studies",
-  "History",
-  "Geography",
-  "Homework Help",
-  "Essay Writing",
-  "Study Plans",
-  "General Question"
-];
-
-const state = {
-  lastQuestion: "",
-  lastAnswer: "",
-  lastSubject: "General Question",
-  busy: false
-};
-
-// ---------------------------------------------------------
-// 2. FIND THE WEBSITE ELEMENTS
-// ---------------------------------------------------------
-
-function findElement(...selectors) {
-  for (const selector of selectors) {
-    const element = document.querySelector(selector);
-
-    if (element) {
-      return element;
-    }
+  function normalize(text) {
+    return text.toLowerCase().replace(/[’']/g, "'").trim();
   }
 
-  return null;
-}
-
-function getQuestionInput() {
-  return findElement(
-    "#question",
-    "#userQuestion",
-    "#questionInput",
-    "#topic",
-    "#topicInput",
-    "#user-input",
-    "#messageInput",
-    "#prompt",
-    "textarea",
-    'input[type="text"]'
-  );
-}
-
-function getAnswerContainer() {
-  return findElement(
-    "#answer",
-    "#answerBox",
-    "#response",
-    "#responseBox",
-    "#chatResponse",
-    "#chatMessages",
-    "#chat-container",
-    "#chatContainer",
-    "#results",
-    "#output"
-  );
-}
-
-function getAskButton() {
-  return findElement(
-    "#askButton",
-    "#askBtn",
-    "#askKaakyire",
-    "#submitQuestion",
-    "#sendButton",
-    "#sendBtn",
-    "#submitBtn",
-    "#ask-button"
-  );
-}
-
-function getStatusElement() {
-  return findElement("#status", "#loading", "#statusMessage");
-}
-
-// ---------------------------------------------------------
-// 3. DISPLAY ANSWERS SAFELY
-// ---------------------------------------------------------
-
-function showAnswer(message, type = "answer") {
-  let container = getAnswerContainer();
-
-  if (!container) {
-    container = document.createElement("section");
-    container.id = "kaakyireAnswer";
-    container.setAttribute("aria-live", "polite");
-    container.style.cssText = [
-      "margin-top:20px",
-      "padding:18px",
-      "border-radius:12px",
-      "background:#f3f7ff",
-      "color:#172554",
-      "line-height:1.7",
-      "white-space:pre-wrap",
-      "overflow-wrap:anywhere"
-    ].join(";");
-
-    const input = getQuestionInput();
-
-    if (input && input.parentElement) {
-      input.parentElement.insertAdjacentElement(
-        "afterend",
-        container
-      );
+  function showAnswer(text) {
+    if (answerBox) {
+      answerBox.textContent = text;
+      answerBox.style.whiteSpace = "pre-wrap";
     } else {
-      document.body.appendChild(container);
+      const existing = document.querySelector(
+        "#answerBox, #answer, #response, #result, #aiResponse, #output"
+      );
+
+      if (existing) {
+        existing.textContent = text;
+      } else {
+        alert(text);
+      }
     }
   }
 
-  container.textContent = message;
-  container.style.display = "block";
-  container.setAttribute("role", "status");
-
-  if (type === "error") {
-    container.style.background = "#fff1f2";
-    container.style.color = "#9f1239";
-  } else {
-    container.style.background = "#f3f7ff";
-    container.style.color = "#172554";
+  function chooseSubject(subject) {
+    selectedSubject = normalize(subject);
+    document.querySelectorAll(
+      "[data-subject], .subject-btn, .subject-button"
+    ).forEach(button => {
+      const name = normalize(
+        button.dataset.subject || button.textContent
+      );
+      button.setAttribute(
+        "aria-pressed",
+        String(name.includes(selectedSubject))
+      );
+    });
   }
-}
 
-function setBusy(isBusy) {
-  state.busy = isBusy;
+  // Connect subject buttons already present on the website.
+  document.querySelectorAll(
+    "[data-subject], .subject-btn, .subject-button"
+  ).forEach(button => {
+    button.addEventListener("click", () => {
+      chooseSubject(button.dataset.subject || button.textContent);
+    });
+  });
 
-  const button = getAskButton();
-  const status = getStatusElement();
+  // Also recognize buttons labelled with a subject.
+  document.querySelectorAll("button").forEach(button => {
+    const label = normalize(button.textContent);
+    const subject = subjectNames.find(name =>
+      label === name || label === name + " help"
+    );
 
-  if (button) {
-    button.disabled = isBusy;
+    if (subject) {
+      button.addEventListener("click", () => chooseSubject(subject));
+    }
+  });
 
-    if (!button.dataset.originalText) {
-      button.dataset.originalText =
-        button.textContent.trim() || "Ask Kaakyire";
+  function findSubject(question) {
+    const q = normalize(question);
+
+    if (/\b(geography|continent|continents|capital city|ocean|map|climate|landform|latitude|longitude|equator)\b/.test(q)) {
+      return "geography";
+    }
+    if (/\b(history|historical|ancient civilization|world war|revolution|past events)\b/.test(q)) {
+      return "history";
+    }
+    if (/\b(science|plant|photosynthesis|gravity|solar system|planet|water cycle|animal|human body|energy|matter|evaporation|condensation)\b/.test(q)) {
+      return "science";
+    }
+    if (/\b(math|mathematics|multiply|multiplication|divide|division|fraction|equation|calculate|plus|minus)\b/.test(q)) {
+      return "mathematics";
+    }
+    if (/\b(english|grammar|noun|verb|adjective|adverb|spelling|vocabulary|punctuation|reading|essay)\b/.test(q)) {
+      return "english";
+    }
+    if (/\b(social studies|democracy|government|citizen|citizenship|community|economy|rights|responsibilities)\b/.test(q)) {
+      return "social studies";
     }
 
-    button.textContent = isBusy
-      ? "Thinking..."
-      : button.dataset.originalText;
+    return selectedSubject;
   }
 
-  if (status) {
-    status.textContent = isBusy
-      ? "Kaakyire is working on your question..."
-      : "";
+  function answerMath(q) {
+    // Handle simple arithmetic questions such as 12 x 8.
+    const match = q.match(
+      /(-?\d+(?:\.\d+)?)\s*(\+|\-|\*|\/|×|÷|\bx\b)\s*(-?\d+(?:\.\d+)?)/
+    );
+
+    if (match) {
+      const a = Number(match[1]);
+      const op = match[2];
+      const b = Number(match[3]);
+      let result;
+
+      if (op === "+") result = a + b;
+      else if (op === "-") result = a - b;
+      else if (["*", "×", "x"].includes(op)) result = a * b;
+      else if (["/", "÷"].includes(op)) {
+        if (b === 0) return "You cannot divide a number by zero.";
+        result = a / b;
+      }
+
+      return `Let's solve it step by step.\n\n${a} ${op} ${b}\n= ${result}\n\nAnswer: ${result}`;
+    }
+
+    if (/\b(fraction|fractions)\b/.test(q)) {
+      return "A fraction represents part of a whole. For example, 1/2 means one out of two equal parts.\n\nTo add fractions with the same denominator, add the numerators and keep the denominator. Example: 1/4 + 2/4 = 3/4.";
+    }
+
+    if (/\b(multiplication|multiply|times table)\b/.test(q)) {
+      return "Multiplication is repeated addition. For example, 3 × 4 means 3 groups of 4.\n\n4 + 4 + 4 = 12, so 3 × 4 = 12.";
+    }
+
+    return null;
   }
-}
 
-// ---------------------------------------------------------
-// 4. IDENTIFY THE SUBJECT
-// ---------------------------------------------------------
-
-function detectSubject(question) {
-  const text = question.toLowerCase();
-
-  const patterns = [
+  const lessons = [
     {
-      subject: "Mathematics",
-      words: /\b(math|mathematics|calculate|equation|fraction|algebra|geometry|multiply|multiplication|divide|division|percentage|percent|decimal|perimeter|area|volume|solve|addition|subtraction|probability|ratio|average|square root|slope|quadratic|times table)\b/
+      subject: "geography",
+      keywords: /\b(continents|continent)\b/,
+      answer: "There are seven commonly recognized continents:\n1. Africa\n2. Antarctica\n3. Asia\n4. Europe\n5. North America\n6. South America\n7. Australia (often grouped with Oceania).\n\nA continent is one of Earth's large land areas."
     },
     {
-      subject: "English",
-      words: /\b(english|grammar|spelling|punctuation|vocabulary|verb|noun|adjective|adverb|pronoun|sentence|reading comprehension|figurative language|simile|metaphor|synonym|antonym|paragraph|parts of speech)\b/
+      subject: "geography",
+      keywords: /\b(oceans|ocean)\b/,
+      answer: "Earth has five commonly recognized oceans:\n1. Pacific Ocean\n2. Atlantic Ocean\n3. Indian Ocean\n4. Southern Ocean\n5. Arctic Ocean.\n\nThe Pacific is the largest ocean."
     },
     {
-      subject: "Science",
-      words: /\b(science|biology|chemistry|physics|cell|photosynthesis|atom|molecule|gravity|electricity|energy|ecosystem|human body|planet|force|experiment|weather|water cycle|organism|chemical reaction)\b/
+      subject: "geography",
+      keywords: /\b(capital of ghana|ghana's capital|ghana capital)\b/,
+      answer: "The capital city of Ghana is Accra. Accra is on the Gulf of Guinea in West Africa."
     },
     {
-      subject: "Social Studies",
-      words: /\b(social studies|government|citizenship|civics|community|culture|economics|constitution|democracy|election|rights|responsibilities)\b/
+      subject: "geography",
+      keywords: /\b(capital of the united states|us capital|usa capital|capital of america)\b/,
+      answer: "The capital of the United States is Washington, D.C. It is a federal district, not a state."
     },
     {
-      subject: "History",
-      words: /\b(history|historical|ancient|civilization|revolution|slavery|civil war|world war|independence|colonialism|president|historical event)\b/
+      subject: "geography",
+      keywords: /\b(equator)\b/,
+      answer: "The Equator is an imaginary line around the middle of Earth. It divides Earth into the Northern Hemisphere and Southern Hemisphere."
     },
     {
-      subject: "Geography",
-      words: /\b(geography|continent|country|capital city|latitude|longitude|map|mountain|river|ocean|climate|population|landform|natural resources)\b/
+      subject: "geography",
+      keywords: /\b(latitude|longitude)\b/,
+      answer: "Latitude measures how far north or south a place is from the Equator. Longitude measures how far east or west a place is from the Prime Meridian. Together, they help locate places on Earth."
     },
     {
-      subject: "Essay Writing",
-      words: /\b(essay|thesis|introduction|conclusion|argument|persuasive|evidence|paragraph|outline|research paper|citation|cite sources)\b/
+      subject: "geography",
+      keywords: /\b(weather|climate)\b/,
+      answer: "Weather describes short-term atmospheric conditions, such as today's rain or temperature. Climate describes the usual weather patterns of a place over a long period."
     },
     {
-      subject: "Study Plans",
-      words: /\b(study plan|study schedule|exam preparation|prepare for a test|revision schedule|study timetable|time management)\b/
+      subject: "geography",
+      keywords: /\b(mountain|mountains|landform|landforms|valley|plain|plateau)\b/,
+      answer: "Landforms are natural features of Earth's surface. Examples include mountains, valleys, plains, plateaus, and hills. They form through processes such as erosion, volcanic activity, and movements of Earth's crust."
     },
     {
-      subject: "Homework Help",
-      words: /\b(homework|assignment|schoolwork|worksheet|project|due date|classwork)\b/
+      subject: "science",
+      keywords: /\b(plant|plants|photosynthesis|sunlight)\b/,
+      answer: "Why do plants need sunlight?\n\nStep 1: Leaves absorb light energy from the Sun.\nStep 2: Plants use that energy in a process called photosynthesis.\nStep 3: They use water from the soil and carbon dioxide from the air to make sugars.\nStep 4: The sugars provide energy and materials for growth. Oxygen is released as a by-product.\n\nRemember: sunlight provides the energy plants need for photosynthesis."
+    },
+    {
+      subject: "science",
+      keywords: /\b(water cycle|evaporation|condensation|precipitation)\b/,
+      answer: "The water cycle moves water around Earth.\n\n1. Evaporation: the Sun heats water, turning some liquid water into vapor.\n2. Condensation: water vapor cools and forms tiny droplets in clouds.\n3. Precipitation: water falls as rain, snow, sleet, or hail.\n4. Collection: water gathers in rivers, lakes, oceans, and the ground.\n\nThen the cycle continues."
+    },
+    {
+      subject: "science",
+      keywords: /\b(gravity)\b/,
+      answer: "Gravity is a force of attraction between objects that have mass. Earth's gravity pulls objects toward its center. This is why a dropped ball falls to the ground and why we stay on Earth's surface."
+    },
+    {
+      subject: "science",
+      keywords: /\b(solar system|planets|planet)\b/,
+      answer: "Our solar system has eight recognized planets, in order from the Sun:\n1. Mercury\n2. Venus\n3. Earth\n4. Mars\n5. Jupiter\n6. Saturn\n7. Uranus\n8. Neptune.\n\nThe planets orbit the Sun. Earth is the planet where we live."
+    },
+    {
+      subject: "science",
+      keywords: /\b(photosynthesis)\b/,
+      answer: "Photosynthesis is how plants use light energy to make sugars from water and carbon dioxide. Oxygen is released in the process. Photosynthesis helps plants grow and supports much of life on Earth."
+    },
+    {
+      subject: "science",
+      keywords: /\b(heart|human body|lungs|brain)\b/,
+      answer: "The human body has many systems that work together. The brain helps control the body, the heart pumps blood, and the lungs exchange oxygen and carbon dioxide. Together, these organs help keep us alive."
+    },
+    {
+      subject: "science",
+      keywords: /\b(states of matter|solid|liquid|gas)\b/,
+      answer: "Three common states of matter are:\n1. Solid: has a definite shape and volume, like ice.\n2. Liquid: has a definite volume but takes the shape of its container, like water.\n3. Gas: spreads out to fill its container, like water vapor.\n\nHeating or cooling can change matter from one state to another."
+    },
+    {
+      subject: "history",
+      keywords: /\b(ancient egypt|egyptian pyramids|pharaoh|pharaohs)\b/,
+      answer: "Ancient Egypt was a civilization in northeastern Africa along the Nile River. The Nile supported farming and transportation. Ancient Egyptians built pyramids, developed writing called hieroglyphs, and were ruled by kings known as pharaohs."
+    },
+    {
+      subject: "history",
+      keywords: /\b(ancient greece|greek civilization|ancient greeks)\b/,
+      answer: "Ancient Greece consisted of independent city-states, including Athens and Sparta. Ancient Greeks influenced philosophy, mathematics, art, architecture, and ideas about democracy. Their society was diverse, and political rights were not shared equally by everyone."
+    },
+    {
+      subject: "history",
+      keywords: /\b(american revolution|revolutionary war|independence of the united states)\b/,
+      answer: "The American Revolution was the struggle by Britain's thirteen North American colonies to become independent. The Declaration of Independence was adopted on July 4, 1776. The war ended with the Treaty of Paris in 1783, which recognized United States independence."
+    },
+    {
+      subject: "history",
+      keywords: /\b(world war ii|second world war|wwii)\b/,
+      answer: "World War II lasted from 1939 to 1945. It involved many countries and caused enormous loss of life. The Holocaust was the systematic persecution and murder of six million Jews by Nazi Germany and its collaborators, alongside the persecution and murder of many other victims. The war ended in 1945."
+    },
+    {
+      subject: "history",
+      keywords: /\b(world war i|first world war|wwi)\b/,
+      answer: "World War I lasted from 1914 to 1918. It involved many countries, mainly in Europe at first, and caused widespread destruction. The war ended with an armistice on November 11, 1918."
+    },
+    {
+      subject: "history",
+      keywords: /\b(ghana independence|independence of ghana|kwame nkrumah)\b/,
+      answer: "Ghana gained independence from British colonial rule on March 6, 1957. Kwame Nkrumah became the country's first prime minister and later its first president."
+    },
+    {
+      subject: "english",
+      keywords: /\b(noun|nouns)\b/,
+      answer: "A noun names a person, place, thing, or idea.\n\nExamples:\n- Person: teacher\n- Place: school\n- Thing: book\n- Idea: courage\n\nExample sentence: The student reads a book. 'Student' and 'book' are nouns."
+    },
+    {
+      subject: "english",
+      keywords: /\b(verb|verbs)\b/,
+      answer: "A verb expresses an action or a state of being.\n\nExamples: run, read, write, think, is, and are.\n\nExample: The girl reads a book. 'Reads' is the verb."
+    },
+    {
+      subject: "english",
+      keywords: /\b(adjective|adjectives)\b/,
+      answer: "An adjective describes a noun or pronoun. Examples include happy, tall, blue, and interesting.\n\nExample: The tall student has a blue bag. 'Tall' describes the student and 'blue' describes the bag."
+    },
+    {
+      subject: "english",
+      keywords: /\b(adverb|adverbs)\b/,
+      answer: "An adverb often describes a verb, an adjective, or another adverb. Examples include quickly, carefully, very, and yesterday.\n\nExample: She reads carefully. 'Carefully' tells how she reads."
+    },
+    {
+      subject: "social studies",
+      keywords: /\b(democracy|democratic government)\b/,
+      answer: "Democracy is a form of government in which people have a role in making political decisions, often by electing representatives. Democratic systems depend on participation, laws, and protection of rights. Different countries organize their democracies in different ways."
+    },
+    {
+      subject: "social studies",
+      keywords: /\b(community|communities)\b/,
+      answer: "A community is a group of people who live in the same area or share interests, services, or goals. Community members can help one another, follow shared rules, and work together to solve problems."
+    },
+    {
+      subject: "social studies",
+      keywords: /\b(rights and responsibilities|responsibilities of citizens|citizen rights)\b/,
+      answer: "Rights are freedoms or protections people are entitled to under the law. Responsibilities are duties people are expected to fulfill. Examples can include following laws, respecting others, participating in community life, and learning about civic issues."
+    },
+    {
+      subject: "computer skills",
+      keywords: /\b(computer|keyboard|mouse|internet safety)\b/,
+      answer: "Computer skills include using a keyboard and mouse, managing files, using applications, searching the internet carefully, and protecting personal information. Never share passwords or sensitive information with people you do not trust."
+    },
+    {
+      subject: "general",
+      keywords: /\b(study plan|study schedule)\b/,
+      answer: "Here is a simple study plan:\n\n1. Choose one subject and a clear goal.\n2. Study for 20–25 minutes.\n3. Take a short break.\n4. Answer practice questions without looking at your notes.\n5. Review mistakes and try again.\n6. Repeat for your next subject.\n\nWrite down assignment deadlines so you can plan ahead."
+    },
+    {
+      subject: "general",
+      keywords: /\b(quiz|practice questions|test me)\b/,
+      answer: "Let's practise! Choose a subject and ask me for a short quiz. I can give you practice questions on the topics covered in this learning assistant. For the best results, tell me your grade level and topic."
     }
   ];
 
-  for (const pattern of patterns) {
-    if (pattern.words.test(text)) {
-      return pattern.subject;
-    }
-  }
+  function answerQuestion(question) {
+    const q = normalize(question);
+    const subject = findSubject(q);
 
-  return "General Question";
-}
-
-// ---------------------------------------------------------
-// 5. BASIC MATHEMATICS SUPPORT
-// ---------------------------------------------------------
-
-function solveBasicMath(question) {
-  const text = question.toLowerCase().trim();
-
-  // Only evaluate simple numeric expressions.
-  // Never execute arbitrary JavaScript supplied by a user.
-  const expressionMatch = text.match(
-    /(?:what is|calculate|solve|evaluate|find the value of)\s+(-?\d+(?:\.\d+)?(?:\s*[\+\-*/×÷]\s*-?\d+(?:\.\d+)?)+)\s*\??$/
-  );
-
-  let expression = expressionMatch
-    ? expressionMatch[1]
-    : text.match(
-        /^(-?\d+(?:\.\d+)?(?:\s*[\+\-*/×÷]\s*-?\d+(?:\.\d+)?)+)\s*\??$/
-      )?.[1];
-
-  if (!expression) {
-    const percentMatch = text.match(
-      /what is\s+(\d+(?:\.\d+)?)\s*%\s*of\s*(-?\d+(?:\.\d+)?)/
-    );
-
-    if (percentMatch) {
-      const percent = Number(percentMatch[1]);
-      const number = Number(percentMatch[2]);
-      const answer = (percent / 100) * number;
-
-      return `${percent}% of ${number} = ${answer}\n\nStep 1: Convert ${percent}% into a decimal by dividing by 100.\n${percent} ÷ 100 = ${percent / 100}\n\nStep 2: Multiply the decimal by ${number}.\n${percent / 100} × ${number} = ${answer}`;
+    if (!q) {
+      return "Please type a question first. I am here to help you learn.";
     }
 
-    return null;
-  }
-
-  expression = expression.replace(/[×]/g, "*");
-  expression = expression.replace(/[÷]/g, "/");
-  expression = expression.replace(/\s+/g, "");
-
-  if (!/^[\d.+*/-]+$/.test(expression)) {
-    return null;
-  }
-
-  const numbers = expression.match(
-    /(?:^|[*/+-])-?\d+(?:\.\d+)?/g
-  );
-
-  if (!numbers) {
-    return null;
-  }
-
-  // A tiny arithmetic parser with operator precedence.
-  const tokens = expression.match(
-    /-?\d+(?:\.\d+)?|[+*/-]/g
-  );
-
-  if (!tokens) {
-    return null;
-  }
-
-  const values = [];
-  const operators = [];
-
-  let expectNumber = true;
-
-  for (let i = 0; i < tokens.length; i++) {
-    const token = tokens[i];
-
-    if (expectNumber) {
-      if (token === "-") {
-        const next = Number(tokens[++i]);
-
-        if (!Number.isFinite(next)) return null;
-
-        values.push(-next);
-      } else if (token === "+") {
-        const next = Number(tokens[++i]);
-
-        if (!Number.isFinite(next)) return null;
-
-        values.push(next);
-      } else {
-        const value = Number(token);
-
-        if (!Number.isFinite(value)) return null;
-
-        values.push(value);
-      }
-
-      expectNumber = false;
-    } else {
-      if (!["+", "-", "*", "/"].includes(token)) {
-        return null;
-      }
-
-      operators.push(token);
-      expectNumber = true;
+    const mathAnswer = answerMath(q);
+    if (mathAnswer && (
+      subject === "mathematics" ||
+      /[0-9]\s*(\+|\-|\*|\/|×|÷|x)\s*[0-9]/.test(q)
+    )) {
+      return mathAnswer;
     }
-  }
 
-  if (expectNumber || values.length !== operators.length + 1) {
-    return null;
-  }
+    // Match subject-specific lessons first.
+    const match = lessons.find(lesson =>
+      lesson.keywords.test(q) &&
+      (lesson.subject === subject || subject === "general")
+    );
 
-  // Handle multiplication and division first.
-  for (let i = 0; i < operators.length;) {
-    const op = operators[i];
+    if (match) return match.answer;
 
-    if (op === "*" || op === "/") {
-      const a = values[i];
-      const b = values[i + 1];
+    // Then allow matching prepared lessons from other subjects.
+    const otherMatch = lessons.find(lesson => lesson.keywords.test(q));
+    if (otherMatch) return otherMatch.answer;
 
-      if (op === "/" && b === 0) {
-        return "Division by zero is undefined. Please use a nonzero divisor.";
-      }
-
-      const result = op === "*" ? a * b : a / b;
-
-      values.splice(i, 2, result);
-      operators.splice(i, 1);
-    } else {
-      i++;
+    if (/\b(homework|assignment)\b/.test(q)) {
+      return "I can help you understand your homework step by step. Please type the full question and tell me the subject. I will try to explain the steps clearly.";
     }
-  }
 
-  let result = values[0];
-
-  for (let i = 0; i < operators.length; i++) {
-    if (operators[i] === "+") {
-      result += values[i + 1];
-    } else {
-      result -= values[i + 1];
+    if (/\b(study guide|revision)\b/.test(q)) {
+      return "To make a useful study guide, tell me your subject, topic, and grade level. I can organize key ideas, definitions, and practice questions.";
     }
+
+    return "Thank you for asking Kaakyire Learning AI!\n\nI don't have a prepared answer for this exact question yet. Please try asking about a specific topic, or include the subject and grade level so I can guide you better.\n\nImportant: this version uses built-in lesson answers. It is not yet connected to a full AI service, so it cannot reliably answer every question.";
   }
 
-  if (!Number.isFinite(result)) return null;
+  function submitQuestion(event) {
+    if (event) event.preventDefault();
 
-  return `Let's solve it step by step!\n\nExpression: ${expression.replace(/\*/g, " × ").replace(/\//g, " ÷ ")}\n\nApply multiplication and division before addition and subtraction. Then calculate from left to right for operations with the same priority.\n\nAnswer: ${Number(result.toPrecision(10))}`;
-}
-
-// ---------------------------------------------------------
-// 6. BUILT-IN LEARNING HELP
-// ---------------------------------------------------------
-
-function getBuiltInAnswer(question, subject) {
-  const text = question.toLowerCase().trim();
-
-  if (/^(hi|hello|hey|good morning|good afternoon|good evening)\b/.test(text)) {
-    return "Hello! Welcome to Kaakyire Learning AI! 😊\n\nWhat would you like to learn today? I can help you practise Mathematics, English, Science, History, Social Studies, and more.\n\nType your question, and we will work through it together.";
-  }
-
-  if (/^(who are you|what are you|what is kaakyire)\??$/.test(text)) {
-    return "I am Kaakyire Learning AI, your learning assistant. I am designed to help students understand school subjects, practise problems, improve writing, and organise their studies.";
-  }
-
-  if (/thank you|thanks/.test(text)) {
-    return "You're welcome! Keep learning and asking questions. 😊";
-  }
-
-  // Arithmetic questions.
-  const mathAnswer = solveBasicMath(question);
-
-  if (mathAnswer) {
-    return mathAnswer;
-  }
-
-  // Common maths facts.
-  if (/\b(times table|multiplication table)\b/.test(text)) {
-    return "Here is the 6 times table:\n\n6 × 1 = 6\n6 × 2 = 12\n6 × 3 = 18\n6 × 4 = 24\n6 × 5 = 30\n6 × 6 = 36\n6 × 7 = 42\n6 × 8 = 48\n6 × 9 = 54\n6 × 10 = 60\n\nTell me which number's times table you would like to practise.";
-  }
-
-  if (/\bwhat is a fraction\b|\bexplain fractions\b/.test(text)) {
-    return "A fraction represents part of a whole.\n\nFor example, 3/4 means three out of four equal parts.\n\nThe top number (3) is the numerator. The bottom number (4) is the denominator.\n\nExample: If a pizza is divided into 4 equal slices and you eat 3, you have eaten 3/4 of the pizza.\n\nPractice: What fraction represents 2 parts out of 5 equal parts?";
-  }
-
-  if (/\bphotosynthesis\b/.test(text)) {
-    return "Photosynthesis is the process plants use to make their own food.\n\nStep 1: The plant absorbs sunlight through its leaves.\nStep 2: Its roots absorb water from the soil.\nStep 3: The leaves take in carbon dioxide from the air.\nStep 4: The plant uses light energy to make glucose (sugar) and releases oxygen.\n\nIn simple terms: sunlight + water + carbon dioxide help a plant make food and release oxygen.";
-  }
-
-  if (/\bwater cycle\b/.test(text)) {
-    return "The water cycle is the continuous movement of water between Earth's surface and the atmosphere.\n\n1. Evaporation: The Sun heats water, turning it into water vapour.\n2. Condensation: Water vapour cools and forms clouds.\n3. Precipitation: Water falls as rain, snow, sleet, or hail.\n4. Collection: Water gathers in rivers, lakes, oceans, and the ground.\n\nThe cycle then continues.";
-  }
-
-  if (/\b(noun|verb|adjective)\b/.test(text) && subject === "English") {
-    return "Here is a quick English grammar guide:\n\nA noun names a person, place, thing, or idea. Example: teacher, school, book.\n\nA verb expresses an action or state. Example: run, write, is.\n\nAn adjective describes a noun. Example: a beautiful flower.\n\nExample sentence: The happy student reads.\n- Student = noun\n- Happy = adjective\n- Reads = verb";
-  }
-
-  if (/\b(thesis statement|write a thesis|essay outline)\b/.test(text)) {
-    return "A thesis statement presents the main argument or point of an essay.\n\nExample topic: Online learning.\n\nExample thesis: Online learning can benefit students because it provides flexibility, expands access to educational resources, and allows learners to study at their own pace.\n\nA simple essay outline:\n1. Introduction and thesis statement\n2. Body paragraph 1 with evidence\n3. Body paragraph 2 with evidence\n4. Body paragraph 3 with evidence\n5. Conclusion\n\nTell me your essay topic, and I can help you develop your own outline.";
-  }
-
-  if (/\b(study plan|study schedule|study timetable)\b/.test(text)) {
-    return "Here is a simple one-hour study plan:\n\n0–5 minutes: Choose your learning goal.\n5–20 minutes: Read your notes or textbook.\n20–35 minutes: Practise questions.\n35–45 minutes: Check your answers and correct mistakes.\n45–55 minutes: Explain what you learned in your own words.\n55–60 minutes: Review the key points and plan your next session.\n\nTell me your subjects and test date so I can help you make a more personal study schedule.";
-  }
-
-  if (/\b(photosynthesis|gravity|ecosystem|atom|electricity|human body|planet|energy)\b/.test(text)) {
-    return "Let's learn this topic step by step.\n\nFirst, identify the key idea. Next, connect it to a real-life example. Finally, explain the idea in your own words and practise a question.\n\nPlease tell me which part of this topic you find confusing, and I can help you work through it.";
-  }
-
-  const subjectAdvice = {
-    "Mathematics":
-      "Let's solve your mathematics question step by step. I can handle simple arithmetic here. For equations, fractions, geometry, and more advanced problems, the connected AI service will be needed for broader explanations. Please include the complete question.",
-    "English":
-      "I can help you practise English grammar, spelling, reading comprehension, vocabulary, and writing. Please share the sentence, passage, or assignment instructions you are working on.",
-    "Science":
-      "I can help you explore biology, chemistry, physics, Earth science, and scientific concepts. Please share the exact question so we can identify the key idea and work through it.",
-    "Social Studies":
-      "I can help you study communities, government, citizenship, economics, culture, and social studies concepts. Please provide your question and any instructions from your teacher.",
-    "History":
-      "I can help you examine historical events, people, causes, consequences, and evidence. Please tell me the event or period your question is about.",
-    "Geography":
-      "I can help you explore maps, continents, countries, climate, landforms, and population. Please share your geography question.",
-    "Essay Writing":
-      "I can help you plan an introduction, thesis statement, body paragraphs, evidence, citations, and a conclusion. Please share your essay topic and assignment instructions.",
-    "Study Plans":
-      "I can help you organise your learning into manageable study sessions. Tell me your subjects, available study time, and any upcoming test or due date.",
-    "Homework Help":
-      "Let's work through your homework together. Share the full question and, if possible, tell me what you have tried so far.",
-    "General Question":
-      "I'm ready to help you learn! Please provide your complete question, including any numbers, instructions, or relevant passage. For broad, specialised, or current questions, we will need to connect the AI service."
-  };
-
-  return (
-    `${subjectAdvice[subject] || subjectAdvice["General Question"]}\n\n` +
-    "Note: These built-in explanations are limited. To answer a wide range of questions accurately, Kaakyire Learning AI needs its secure AI connection."
-  );
-}
-
-// ---------------------------------------------------------
-// 7. ASK THE CONNECTED AI SERVICE
-// ---------------------------------------------------------
-
-async function askAI(question, subject) {
-  if (!KAAKYIRE_CONFIG.apiEndpoint) {
-    return getBuiltInAnswer(question, subject);
-  }
-
-  const response = await fetch(KAAKYIRE_CONFIG.apiEndpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      question,
-      subject,
-      appName: KAAKYIRE_CONFIG.appName,
-      instructions:
-        "You are Kaakyire Learning AI, a friendly educational assistant for students, teachers, and parents. " +
-        "Help with Mathematics, English, Science, Social Studies, History, Geography, homework, essays, and study plans. " +
-        "Explain concepts clearly, show mathematical steps, adapt explanations to the student's level, and encourage learning. " +
-        "Do not invent sources, quotations, or facts. For assignments, help students understand and develop their own work."
-    })
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      `The learning service returned an error (${response.status}).`
-    );
-  }
-
-  const data = await response.json();
-
-  const answer =
-    data.answer ??
-    data.response ??
-    data.message ??
-    data.output_text;
-
-  if (typeof answer !== "string" || !answer.trim()) {
-    throw new Error("The learning service returned no answer.");
-  }
-
-  return answer.trim();
-}
-
-// ---------------------------------------------------------
-// 8. HANDLE STUDENT QUESTIONS
-// ---------------------------------------------------------
-
-async function handleQuestion() {
-  if (state.busy) return;
-
-  const input = getQuestionInput();
-
-  if (!input) {
-    showAnswer(
-      "I could not find the question box on this webpage. Please check that index.html contains a textarea or text input for the question.",
-      "error"
-    );
-    return;
-  }
-
-  const question = input.value.trim();
-
-  if (!question) {
-    showAnswer("Please type a school question or topic first.", "error");
-    input.focus();
-    return;
-  }
-
-  if (question.length > KAAKYIRE_CONFIG.maxQuestionLength) {
-    showAnswer(
-      `Please keep your question under ${KAAKYIRE_CONFIG.maxQuestionLength} characters.`,
-      "error"
-    );
-    return;
-  }
-
-  const subject = detectSubject(question);
-
-  state.lastQuestion = question;
-  state.lastSubject = subject;
-
-  setBusy(true);
-  showAnswer(`Kaakyire is thinking about your ${subject} question...`);
-
-  try {
-    const answer = await askAI(question, subject);
-
-    state.lastAnswer = answer;
-
-    showAnswer(
-      `${subject}\n\n${answer}\n\n— Kaakyire Learning AI`
-    );
-  } catch (error) {
-    console.error("Kaakyire Learning AI error:", error);
-
-    showAnswer(
-      "I'm sorry, I could not get an answer from the learning service right now.\n\nPlease check your internet connection or try again later. If this keeps happening, the secure AI backend may need to be checked.",
-      "error"
-    );
-  } finally {
-    setBusy(false);
-  }
-}
-
-// ---------------------------------------------------------
-// 9. SUBJECT BUTTONS
-// ---------------------------------------------------------
-
-function setupSubjectButtons() {
-  const buttons = document.querySelectorAll(
-    "[data-subject], .subject-button, .subject-btn"
-  );
-
-  buttons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const subject =
-        button.dataset.subject ||
-        button.textContent.trim();
-
-      const input = getQuestionInput();
-
-      if (input) {
-        input.dataset.selectedSubject = subject;
-        input.placeholder = `Ask a ${subject} question...`;
-        input.focus();
-      }
-
-      state.lastSubject = subject;
-
+    if (!questionInput) {
       showAnswer(
-        `You selected ${subject}.\n\nType your question in the question box and click Ask Kaakyire. I will help you work through it.`
+        "I could not find the question box on this page. " +
+        "The input selector in script.js may need to match index.html."
       );
-    });
-  });
-}
-
-// ---------------------------------------------------------
-// 10. FOLLOW-UP QUESTIONS
-// ---------------------------------------------------------
-
-function setupFollowUp() {
-  document.addEventListener("keydown", (event) => {
-    const input = getQuestionInput();
-
-    if (
-      input &&
-      event.target === input &&
-      event.key === "Enter" &&
-      !event.shiftKey
-    ) {
-      event.preventDefault();
-      handleQuestion();
+      return;
     }
-  });
-}
 
-// ---------------------------------------------------------
-// 11. START THE APPLICATION
-// ---------------------------------------------------------
-
-function initializeKaakyire() {
-  const button = getAskButton();
-
-  if (button) {
-    button.addEventListener("click", handleQuestion);
+    const question = questionInput.value.trim();
+    showAnswer(answerQuestion(question));
   }
 
-  // Support existing forms without requiring a particular ID.
-  document.querySelectorAll("form").forEach((form) => {
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-      handleQuestion();
+  if (form) {
+    form.addEventListener("submit", submitQuestion);
+  }
+
+  if (askButton && (!form || askButton.form !== form)) {
+    askButton.addEventListener("click", submitQuestion);
+  }
+
+  // Support common button labels if the page has no form.
+  if (!form && !askButton) {
+    document.querySelectorAll("button").forEach(button => {
+      if (/\b(ask|send|submit|answer)\b/i.test(button.textContent)) {
+        button.addEventListener("click", submitQuestion);
+      }
     });
-  });
-
-  setupSubjectButtons();
-  setupFollowUp();
-
-  console.info(
-    `${KAAKYIRE_CONFIG.appName} is ready.`
-  );
-
-  if (!getQuestionInput()) {
-    console.warn(
-      "Question input not found. Check the IDs in index.html."
-    );
   }
 
-  if (!button && document.querySelectorAll("form").length === 0) {
-    console.warn(
-      "Ask button not found. Check the IDs in index.html."
-    );
-  }
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener(
-    "DOMContentLoaded",
-    initializeKaakyire
-  );
-} else {
-  initializeKaakyire();
-}
+  console.log("Kaakyire Learning AI is ready.");
+});
