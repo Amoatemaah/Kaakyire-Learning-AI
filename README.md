@@ -6,7 +6,7 @@ Mission
 
 Our mission is to make learning smarter, faster, and more accessible through AI-driven education.
 
-Furthers
+Further
 
 AI Tutor Personalized Learning paths Quiz Generator Progress Tracking Learning Analytics Students Dashboard Course Management Multi-Device Access
 
