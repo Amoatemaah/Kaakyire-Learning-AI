@@ -1,6 +1,4 @@
-
 "use strict";
-
 /* =====================================================
    KAAKYIRE LEARNING AI
    K–12 Learning Engine
