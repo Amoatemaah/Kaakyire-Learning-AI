@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return mathAnswer;
       }
     }
-
+    
     const lessons = {
       "English": [
         {
