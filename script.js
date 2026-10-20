@@ -1,5 +1,11 @@
 "use strict";
 document.addEventListener("DOMContentLoaded", function () {
+  // ==========================================
+  // KAAKYIRE LEARNING AI
+  // Mathematics, English, Science, History,
+  // Geography, and Social Studies
+  // ==========================================
+
   const form = document.getElementById("question-form");
   const subjectInput = document.getElementById("subject");
   const difficultyInput = document.getElementById("difficulty");
@@ -8,575 +14,643 @@ document.addEventListener("DOMContentLoaded", function () {
   const answerBox = document.getElementById("answer");
   const statusBox = document.getElementById("status");
 
-  // Check that the HTML elements exist.
   if (
     !subjectInput ||
-    !difficultyInput ||
     !questionInput ||
     !askButton ||
-    !answerBox ||
-    !statusBox
+    !answerBox
   ) {
     console.error(
-      "Kaakyire: Check the element IDs in index.html."
+      "Kaakyire Learning AI: Check the HTML IDs for subject, question, ask-button, and answer."
     );
     return;
   }
 
-  statusBox.textContent = "Kaakyire is ready to help you learn.";
-
-  // Handle questions from the form or button.
-  let isAsking = false;
-
-  function handleAsk(event) {
-    if (event) event.preventDefault();
-    if (isAsking) return;
-
-    const question = questionInput.value.trim();
-    const subject = subjectInput.value;
-    const level = difficultyInput.value;
-
-    if (!question) {
-      statusBox.textContent = "Please type a question first.";
-      questionInput.focus();
-      return;
-    }
-
-    isAsking = true;
-    askButton.disabled = true;
-    askButton.textContent = "Thinking...";
-    statusBox.textContent = "Preparing your answer...";
-    answerBox.textContent = "";
-
-    try {
-      const answer = getLearningAnswer(subject, question, level);
-      answerBox.textContent = answer;
-      statusBox.textContent = "Answer ready! Keep learning.";
-    } catch (error) {
-      console.error("Kaakyire error:", error);
-      answerBox.textContent =
-        "Something went wrong. Please try another question.";
-      statusBox.textContent = "Please try again.";
-    } finally {
-      isAsking = false;
-      askButton.disabled = false;
-      askButton.textContent = "Ask Kaakyire";
-    }
-  }
-
+  // Prevent the page from refreshing when the form is submitted.
   if (form) {
     form.addEventListener("submit", handleAsk);
   } else {
     askButton.addEventListener("click", handleAsk);
+    questionInput.addEventListener("keydown", function (event) {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        handleAsk(event);
+      }
+    });
   }
 
-  // GENERAL ANSWER ENGINE
+  function handleAsk(event) {
+    if (event) event.preventDefault();
+
+    const question = questionInput.value.trim();
+    const subject = subjectInput.value;
+    const level = difficultyInput
+      ? difficultyInput.value
+      : "Medium";
+
+    if (!question) {
+      showStatus("Please type a question first.");
+      questionInput.focus();
+      return;
+    }
+
+    showStatus("Kaakyire is preparing your explanation...");
+    askButton.disabled = true;
+
+    try {
+      const response = getLearningAnswer(
+        subject,
+        question,
+        level
+      );
+
+      answerBox.textContent = response;
+      showStatus("Here is your learning answer.");
+    } catch (error) {
+      console.error("Kaakyire error:", error);
+      answerBox.textContent =
+        "Sorry, something went wrong. Please check your question and try again.";
+      showStatus("Please try again.");
+    } finally {
+      askButton.disabled = false;
+    }
+  }
+
+  function showStatus(message) {
+    if (statusBox) {
+      statusBox.textContent = message;
+    }
+  }
+
+  // ==========================================
+  // MAIN LEARNING ANSWER FUNCTION
+  // ==========================================
+
   function getLearningAnswer(subject, question, level) {
     const q = question.toLowerCase().trim();
-    const clean = q.replace(/[.!?]+$/g, "").trim();
     const s = String(subject || "").toLowerCase().trim();
 
-    // Greetings and conversation
-    if (/^(hi|hello|hey|hiya)\b/.test(clean)) {
-      return "Hello! Welcome to Kaakyire Learning AI! 😊 What would you like to learn today?";
+    if (/^(hi|hello|hey|good morning|good afternoon|good evening)[!. ]*$/.test(q)) {
+      return "Hello! Welcome to Kaakyire Learning AI. What would you like to learn today? Choose a subject and ask your question.";
     }
 
-    if (clean.startsWith("good morning")) {
-      return "Good morning! ☀️ Let's learn something new today. What is your question?";
-    }
-
-    if (clean.startsWith("good afternoon")) {
-      return "Good afternoon! Welcome to Kaakyire Learning AI. What shall we learn?";
-    }
-
-    if (clean.startsWith("good evening")) {
-      return "Good evening! I'm ready to help you learn. What would you like to know?";
-    }
-
-    if (/^how are you\b/.test(clean)) {
-      return "I'm doing well and ready to help you learn! What subject are we exploring today?";
-    }
-
-    if (/^(thank you|thanks|many thanks)\b/.test(clean)) {
-      return "You're very welcome! Keep asking questions and growing your knowledge. 😊";
-    }
-
-    if (/^(bye|goodbye|see you later)\b/.test(clean)) {
-      return "Goodbye! Keep learning, keep practising, and come back whenever you need help.";
-    }
-
-    if (/^(who are you|what is kaakyire|what is kaakyire learning ai)$/.test(clean)) {
-      return "I am Kaakyire Learning AI, your learning assistant for Mathematics, English, Science, History, Geography, and Social Studies.";
-    }
-
-    if (/^(what can you do|what can you help me with)$/.test(clean)) {
-      return "I can explain school topics, practise maths, teach vocabulary and grammar, explore historical events, explain geography, and help you prepare for tests. Choose a subject and ask me a question!";
-    }
-
-    if (/^(tell me a joke|make me laugh)$/.test(clean)) {
-      return "Why did the student bring a ladder to school? Because they wanted to go to the next level! 😄";
-    }
-
-    if (/^(help me|i need help|can you help me)$/.test(clean)) {
-      return "Of course! Tell me the topic or question you need help with. I'll explain it as clearly as I can.";
-    }
-
-    if (/^(i am sad|i'm sad|i feel sad|i am worried|i'm worried)$/.test(clean)) {
-      return "I'm sorry you're feeling this way. Talking to someone you trust may help. You can also tell me what's on your mind.";
-    }
-
-    // Study skills work across subjects
-    if (q.includes("study plan") || q.includes("prepare for a test")) {
-      return "Here is a simple study plan:\n\n1. Choose one topic.\n2. Study for 20 minutes.\n3. Write down the main ideas.\n4. Answer practice questions without looking at your notes.\n5. Review mistakes and difficult parts.\n6. Take a short break and repeat.\n\nSmall, regular study sessions can help you remember more.";
+    if (
+      q.includes("who are you") ||
+      q.includes("what is kaakyire")
+    ) {
+      return "I am Kaakyire Learning AI, an educational learning assistant. I help learners understand school subjects through explanations, examples, and practice questions.";
     }
 
     // MATHEMATICS
-    if (s.includes("math")) {
-      const math = solveMath(q);
-
-      if (math !== null) {
-        return math + tip(level);
-      }
-
-      if (has(q, ["fraction", "numerator", "denominator"])) {
-        return "A fraction represents part of a whole. The numerator is the top number, and the denominator is the bottom number. For example, 3/4 means three out of four equal parts. If a pizza is cut into four equal pieces and you eat three, you have eaten 3/4 of the pizza." + tip(level);
-      }
-
-      if (has(q, ["perimeter"])) {
-        return "Perimeter is the total distance around a shape. Add all the side lengths. For a rectangle, use perimeter = 2 × (length + width). Example: length 5 cm and width 3 cm gives 2 × (5 + 3) = 16 cm." + tip(level);
-      }
-
-      if (has(q, ["area"])) {
-        return "Area measures the space inside a flat shape. For a rectangle, area = length × width. Example: a rectangle 5 cm long and 3 cm wide has an area of 5 × 3 = 15 square centimetres." + tip(level);
-      }
-
-      if (has(q, ["mean", "average", "median", "mode", "range"])) {
-        return "These are ways to describe a set of numbers:\n\nMean: add the numbers and divide by how many there are.\nMedian: put the numbers in order and find the middle value.\nMode: find the value that appears most often.\nRange: subtract the smallest value from the largest.\n\nExample: 2, 4, 4, 6 has mean 4, median 4, mode 4, and range 4." + tip(level);
-      }
-
-      if (has(q, ["percent", "percentage", "%"])) {
-        return "A percentage means 'out of 100.' To find a percentage of a number, convert the percentage to a decimal and multiply. Example: 20% of 50 = 0.20 × 50 = 10. So 20% of 50 is 10." + tip(level);
-      }
-
-      if (has(q, ["decimal", "decimals"])) {
-        return "A decimal uses a decimal point to show parts of a whole. In 3.25, the 3 represents three wholes, the 2 represents two tenths, and the 5 represents five hundredths. Decimals can be compared by lining up their decimal points." + tip(level);
-      }
-
-      if (has(q, ["multiply", "multiplication", "times table"])) {
-        return "Multiplication is repeated addition. For example, 4 × 3 means four groups of three: 3 + 3 + 3 + 3 = 12. Therefore, 4 × 3 = 12. Practising times tables helps you calculate faster." + tip(level);
-      }
-
-      if (has(q, ["divide", "division", "quotient"])) {
-        return "Division separates a quantity into equal groups. For example, 12 ÷ 3 asks how many are in each of three equal groups. Since 3 × 4 = 12, the answer is 4. You cannot divide a number by zero." + tip(level);
-      }
-
-      if (has(q, ["algebra", "equation", "solve for x", "variable"])) {
-        return "Algebra uses letters to represent unknown numbers. For example, x + 3 = 7. Subtract 3 from both sides to get x = 7 − 3, so x = 4. To solve an equation, perform the same operation on both sides to keep them equal." + tip(level);
-      }
-
-      if (has(q, ["triangle", "angles", "angle"])) {
-        return "An angle measures the turn between two lines or rays. An acute angle is less than 90°, a right angle is 90°, and an obtuse angle is greater than 90° but less than 180°. The three interior angles of a triangle add up to 180°." + tip(level);
-      }
-
-      if (has(q, ["perimeter", "shape", "geometry", "circle", "volume"])) {
-        return "Geometry studies shapes, sizes, angles, areas, and volumes. To solve a geometry problem, identify the shape, write down the known measurements, choose the correct formula, and substitute the numbers." + tip(level);
-      }
-
-      return "Let's work on Mathematics step by step. You can ask me to calculate something, solve a simple equation, explain fractions, percentages, decimals, multiplication, division, geometry, area, perimeter, or averages. For example, type: What is 24 divided by 6?" + tip(level);
+    if (
+      s.includes("math") ||
+      s.includes("mathemat")
+    ) {
+      return getMathAnswer(question, level);
     }
 
     // ENGLISH
     if (s.includes("english")) {
-      if (has(q, ["noun", "nouns"])) {
-        return "A noun names a person, place, thing, or idea. Examples are teacher, Ghana, book, and kindness. In 'The student reads a book,' student and book are nouns." + tip(level);
+      if (q.includes("noun")) {
+        return "A noun is a word that names a person, place, animal, or thing.\n\nExamples:\n• Person: teacher\n• Place: school\n• Animal: dog\n• Thing: book\n\nPractice: Can you identify the noun in this sentence: The girl reads a book?";
       }
 
-      if (has(q, ["verb", "verbs"])) {
-        return "A verb expresses an action or a state of being. Examples include run, write, think, is, and are. In 'The child runs quickly,' runs is the verb." + tip(level);
+      if (q.includes("verb")) {
+        return "A verb is a word that describes an action or state of being.\n\nExamples:\n• run\n• eat\n• write\n• is\n\nIn the sentence 'The boy runs fast,' the word 'runs' is the verb.";
       }
 
-      if (has(q, ["adjective", "adjectives"])) {
-        return "An adjective describes a noun or pronoun. In 'The tall tree is green,' tall and green describe the tree." + tip(level);
+      if (q.includes("adjective")) {
+        return "An adjective describes a noun or pronoun.\n\nExamples: a tall building, a red apple, a happy child.\n\nIn 'The small cat sleeps,' the word 'small' is the adjective.";
       }
 
-      if (has(q, ["adverb", "adverbs"])) {
-        return "An adverb often describes a verb, adjective, or another adverb. In 'She reads carefully,' carefully tells us how she reads." + tip(level);
+      if (q.includes("adverb")) {
+        return "An adverb gives more information about a verb, adjective, or another adverb. It may explain how, when, or where something happens.\n\nExample: 'She speaks slowly.' The word 'slowly' tells us how she speaks.";
       }
 
-      if (has(q, ["pronoun", "pronouns"])) {
-        return "A pronoun replaces a noun. Examples include I, you, he, she, it, we, and they. Instead of saying 'Ama is reading,' you can say 'She is reading.'" + tip(level);
+      if (q.includes("pronoun")) {
+        return "A pronoun takes the place of a noun.\n\nExamples: I, you, he, she, it, we, and they.\n\nInstead of saying 'Ama is reading. Ama is happy,' we can say 'Ama is reading. She is happy.'";
       }
 
-      if (has(q, ["synonym", "synonyms"])) {
-        return "A synonym is a word with the same or a similar meaning as another word. For example, happy and joyful are synonyms. Big and large are also synonyms." + tip(level);
+      if (q.includes("past tense")) {
+        return "Past tense describes something that already happened.\n\nExamples:\n• walk → walked\n• play → played\n• go → went\n• eat → ate\n\nExample sentence: Yesterday, I walked to school.";
       }
 
-      if (has(q, ["antonym", "antonyms", "opposite meaning"])) {
-        return "An antonym is a word with the opposite meaning of another word. Examples include hot and cold, up and down, and early and late." + tip(level);
+      if (q.includes("present tense")) {
+        return "Present tense describes something happening now or something that happens regularly.\n\nExamples:\n• I read every day.\n• She plays football.\n• They are learning English.";
       }
 
-      if (has(q, ["simile", "similes"])) {
-        return "A simile compares two things using 'like' or 'as.' For example, 'She is as brave as a lion.' The comparison helps readers imagine the person's bravery." + tip(level);
+      if (q.includes("future tense")) {
+        return "Future tense describes something that will happen later.\n\nExample: 'I will study tomorrow.' The words 'will study' tell us the action is in the future.";
       }
 
-      if (has(q, ["metaphor", "metaphors"])) {
-        return "A metaphor describes one thing as another to make a comparison. 'Time is a thief' suggests that time takes moments away from us. Unlike a simile, a metaphor does not need 'like' or 'as.'" + tip(level);
+      if (q.includes("sentence")) {
+        return "A sentence is a group of words that expresses a complete thought. It usually begins with a capital letter and ends with punctuation.\n\nExample: The students are learning.\n\nA simple sentence can contain a subject and a verb.";
       }
 
-      if (has(q, ["punctuation", "comma", "full stop", "question mark"])) {
-        return "Punctuation makes writing clearer. A full stop ends a statement. A question mark ends a direct question. A comma separates items or parts of a sentence. An apostrophe can show possession or missing letters." + tip(level);
+      if (q.includes("synonym")) {
+        return "A synonym is a word with the same or a similar meaning as another word.\n\nExamples:\n• happy — joyful\n• big — large\n• fast — quick\n• begin — start";
       }
 
-      if (has(q, ["essay", "paragraph", "composition"])) {
-        return "A strong paragraph usually develops one main idea. Start with a topic sentence, add supporting details and examples, and finish with a concluding sentence. An essay commonly includes an introduction, body paragraphs, and a conclusion." + tip(level);
+      if (q.includes("antonym")) {
+        return "An antonym is a word with the opposite meaning of another word.\n\nExamples:\n• hot — cold\n• tall — short\n• happy — sad\n• early — late";
       }
 
-      if (has(q, ["pronunciation", "vocabulary", "meaning of the word"])) {
-        return "Vocabulary means the words a person knows and uses. To learn a new word, read its definition, study it in a sentence, say it aloud, and write your own example. If you give me a specific word, I can explain its meaning." + tip(level);
+      if (q.includes("punctuation")) {
+        return "Punctuation helps make writing clear.\n\n• Period (.) ends a statement.\n• Question mark (?) ends a question.\n• Exclamation mark (!) shows strong feeling.\n• Comma (,) separates items or parts of a sentence.\n\nExample: I bought apples, oranges, and bananas.";
       }
 
-      if (has(q, ["verb tense", "past tense", "present tense", "future tense", "tense"])) {
-        return "Verb tense shows when an action happens. Present: 'I walk.' Past: 'I walked.' Future: 'I will walk.' The correct tense helps readers understand the time of an event." + tip(level);
+      if (q.includes("write") || q.includes("writing") || q.includes("essay")) {
+        return "To write a good paragraph or essay:\n\n1. Understand the topic.\n2. Write an introduction that presents your main idea.\n3. Add supporting details and examples.\n4. Organize your ideas clearly.\n5. Check spelling, grammar, and punctuation.\n6. Finish with a conclusion when writing an essay.\n\nTell me your topic if you would like help planning your writing.";
       }
 
-      if (has(q, ["subject and predicate", "sentence", "grammar"])) {
-        return "Grammar is the set of rules that helps us form clear sentences. A sentence usually has a subject, which tells who or what the sentence is about, and a predicate, which tells something about the subject. Example: 'The girl sings.' The girl is the subject; sings is the predicate." + tip(level);
-      }
-
-      return "Let's improve your English! I can explain nouns, verbs, adjectives, adverbs, pronouns, synonyms, antonyms, similes, metaphors, punctuation, grammar, sentences, vocabulary, and essay writing. Ask about a specific word or sentence for a more focused explanation." + tip(level);
+      return "English helps us read, write, speak, and understand others. I can help with grammar, nouns, verbs, adjectives, tenses, punctuation, vocabulary, reading comprehension, paragraphs, and essays.\n\nPlease ask a specific question, such as 'What is a noun?' or 'Give me five examples of verbs.'";
     }
 
     // SCIENCE
     if (s.includes("science")) {
-      if (has(q, ["photosynthesis", "plants make food"])) {
-        return "Photosynthesis is how green plants make food using light energy. Plants take in water and carbon dioxide and use light captured by chlorophyll to make sugar, releasing oxygen. This process supports much of life on Earth." + tip(level);
+      if (q.includes("photosynthesis")) {
+        return "Photosynthesis is the process plants use to make their own food. Plants use sunlight, water, and carbon dioxide to produce sugar and release oxygen.\n\nRemember: sunlight + water + carbon dioxide help plants make food.";
       }
 
-      if (has(q, ["gravity"])) {
-        return "Gravity is the attraction between objects that have mass. Earth's gravity pulls objects toward its centre. That is why a dropped ball falls to the ground and why the Moon orbits Earth." + tip(level);
+      if (q.includes("water cycle")) {
+        return "The water cycle is the continuous movement of water around Earth.\n\n1. Evaporation: the Sun heats water and turns it into water vapor.\n2. Condensation: water vapor cools and forms clouds.\n3. Precipitation: water falls as rain, snow, sleet, or hail.\n4. Collection: water gathers in rivers, lakes, oceans, and the ground.";
       }
 
-      if (has(q, ["water cycle", "evaporation", "condensation", "precipitation"])) {
-        return "The water cycle moves water around Earth. Evaporation changes liquid water into water vapour. Condensation forms tiny droplets that make clouds. Precipitation, such as rain or snow, brings water back to Earth's surface." + tip(level);
+      if (q.includes("planet") || q.includes("solar system")) {
+        return "Our solar system has eight recognized planets: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune. They orbit the Sun.\n\nEarth is the planet where we live.";
       }
 
-      if (has(q, ["solar system", "planets", "planet"])) {
-        return "Our solar system contains the Sun, eight planets, their moons, and smaller objects. In order from the Sun, the planets are Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune." + tip(level);
+      if (q.includes("gravity")) {
+        return "Gravity is a force of attraction between objects that have mass. Earth's gravity pulls objects toward the ground and helps keep the Moon in orbit around Earth.";
       }
 
-      if (has(q, ["cell", "cells", "animal cell", "plant cell"])) {
-        return "A cell is the basic unit of life. Cells carry out functions needed for living things to survive. Plant cells generally have a cell wall, chloroplasts in photosynthetic tissues, and a large central vacuole. Animal cells do not have a cell wall." + tip(level);
+      if (q.includes("human body") || q.includes("organs")) {
+        return "The human body has many organs that work together.\n\n• The brain controls and coordinates many body activities.\n• The heart pumps blood.\n• The lungs help us breathe.\n• The stomach helps digest food.\n• The kidneys filter waste from the blood.";
       }
 
-      if (has(q, ["matter", "solid", "liquid", "gas", "states of matter"])) {
-        return "Matter is anything that has mass and takes up space. Solids usually keep their shape, liquids flow and take the shape of their container, and gases spread to fill the available space. Heating or cooling can change matter from one state to another." + tip(level);
+      if (q.includes("solid") || q.includes("liquid") || q.includes("gas") || q.includes("states of matter")) {
+        return "The three common states of matter are:\n\n• Solid: has a definite shape and volume, like ice.\n• Liquid: has a definite volume but takes the shape of its container, like water.\n• Gas: spreads out to fill its container, like air.";
       }
 
-      if (has(q, ["force", "motion", "friction"])) {
-        return "A force is a push or pull that can change an object's motion or shape. Motion means a change in position over time. Friction is a force that resists movement between surfaces in contact." + tip(level);
+      if (q.includes("food chain")) {
+        return "A food chain shows how energy moves from one living thing to another.\n\nExample: grass → grasshopper → frog → snake.\n\nThe grass makes its own food, the grasshopper eats the grass, the frog eats the grasshopper, and the snake may eat the frog.";
       }
 
-      if (has(q, ["ecosystem", "food chain", "food web"])) {
-        return "An ecosystem includes living organisms and their nonliving environment. A food chain shows how energy moves between organisms. For example, grass can be eaten by a grasshopper, which can be eaten by a frog." + tip(level);
+      if (q.includes("force") || q.includes("motion")) {
+        return "A force is a push or pull. Forces can start or stop movement, change speed, or change direction.\n\nExample: kicking a stationary ball applies a force that makes the ball move.";
       }
 
-      if (has(q, ["human body", "heart", "lungs", "brain", "organ"])) {
-        return "The human body contains organs that work together. The heart pumps blood, the lungs exchange oxygen and carbon dioxide, and the brain coordinates many body functions. Different organ systems support survival and health." + tip(level);
-      }
-
-      if (has(q, ["electricity", "electric circuit", "circuit"])) {
-        return "Electric current is the flow of electric charge. A simple circuit needs a complete conducting path and an energy source, such as a battery. An open circuit interrupts the path, so current cannot flow through it." + tip(level);
-      }
-
-      if (has(q, ["energy", "renewable energy"])) {
-        return "Energy is the ability to cause change or do work. Forms include light, heat, chemical, electrical, and kinetic energy. Energy can be transferred or transformed from one form to another." + tip(level);
-      }
-
-      if (has(q, ["environment", "pollution", "climate change"])) {
-        return "The environment includes living things and the surroundings in which they live. Pollution can harm air, water, and land. People can help protect the environment by reducing waste, conserving resources, and using cleaner energy." + tip(level);
-      }
-
-      return "Let's explore Science! I can explain photosynthesis, gravity, the water cycle, planets, cells, matter, forces, ecosystems, the human body, electricity, energy, and the environment. Ask about a specific topic, and I'll give you a clear starting explanation." + tip(level);
+      return "Science helps us understand living things, matter, energy, Earth, and space. I can explain topics such as plants, animals, the human body, the water cycle, forces, matter, ecosystems, and the solar system.\n\nAsk a specific science question and I will help you learn it.";
     }
 
     // HISTORY
     if (s.includes("history")) {
-      if (has(q, ["ancient egypt", "pyramids", "pharaoh"])) {
-        return "Ancient Egypt was a civilization in northeastern Africa along the Nile River. The Nile supported farming, transport, and settlement. Egyptian pyramids were monumental structures built mainly as tombs for pharaohs." + tip(level);
+      if (q.includes("ancient egypt") || q.includes("egypt")) {
+        return "Ancient Egypt was a civilization that developed along the Nile River in northeastern Africa. The Nile provided water, fertile soil, and a route for travel and trade. Ancient Egyptians are known for pyramids, hieroglyphic writing, and their pharaohs.";
       }
 
-      if (has(q, ["slave trade", "slavery", "transatlantic"])) {
-        return "The transatlantic slave trade forcibly transported millions of African people across the Atlantic Ocean, mainly to the Americas, over several centuries. Enslaved people endured violence and exploitation. The trade had lasting effects on families, communities, economies, and societies." + tip(level);
+      if (q.includes("slavery")) {
+        return "Slavery is a system in which people are treated as property and denied their freedom. In the United States, slavery became closely connected to the forced labor of Africans and their descendants. Enslaved people resisted slavery in many ways, and abolitionists worked to end it. The 13th Amendment to the U.S. Constitution abolished slavery, except as punishment for a crime.";
       }
 
-      if (has(q, ["american revolution", "independence of america"])) {
-        return "The American Revolution was the struggle by Britain's thirteen North American colonies to become independent. The Declaration of Independence was adopted on July 4, 1776. Britain formally recognized American independence in 1783." + tip(level);
+      if (q.includes("american revolution") || q.includes("revolutionary war")) {
+        return "The American Revolution was the struggle in which thirteen British colonies in North America fought for independence. The conflict began in 1775, and the Declaration of Independence was adopted on July 4, 1776. The United States later won independence from Britain.";
       }
 
-      if (has(q, ["world war i", "first world war", "wwi"])) {
-        return "World War I lasted from 1914 to 1918. The assassination of Archduke Franz Ferdinand triggered the crisis that led to war. Alliances, militarism, nationalism, and international rivalries helped turn the crisis into a wider conflict." + tip(level);
+      if (q.includes("civil war")) {
+        return "The American Civil War lasted from 1861 to 1865. The Union fought against the Confederacy. Slavery was a central cause of the conflict. The Union won, and the 13th Amendment abolished slavery in the United States, except as punishment for a crime.";
       }
 
-      if (has(q, ["world war ii", "second world war", "wwii"])) {
-        return "World War II lasted from 1939 to 1945 and involved countries around the world. It caused enormous loss of life and destruction. The Holocaust was the systematic persecution and murder of six million Jews by Nazi Germany and its collaborators." + tip(level);
+      if (q.includes("world war i") || q.includes("first world war")) {
+        return "World War I lasted from 1914 to 1918. It involved many countries and alliances. The assassination of Archduke Franz Ferdinand helped trigger the conflict, alongside deeper political, military, and nationalist tensions.";
       }
 
-      if (has(q, ["ghana independence", "independence of ghana", "kwame nkrumah", "ghana"])) {
-        return "Ghana, in West Africa, gained independence from British colonial rule on March 6, 1957. Kwame Nkrumah became the country's first prime minister and later its first president. Ghana's independence was an important event in African decolonization." + tip(level);
+      if (q.includes("world war ii") || q.includes("second world war")) {
+        return "World War II lasted from 1939 to 1945. It involved countries around the world. Nazi Germany's invasion of Poland in 1939 began the war in Europe. The war ended in 1945 after the defeat of the Axis powers.";
       }
 
-      if (has(q, ["industrial revolution"])) {
-        return "The Industrial Revolution began in Britain in the eighteenth century and spread to other regions. New machines, factories, and transport systems changed how goods were made and how people lived and worked." + tip(level);
+      if (q.includes("history")) {
+        return "History is the study of people, events, and societies of the past. Historians use documents, artifacts, photographs, and other evidence to understand what happened and why it matters.";
       }
 
-      if (has(q, ["colonialism", "colonization", "colonial rule"])) {
-        return "Colonialism occurs when a country or power controls another territory and its people. Colonial rule often involved taking resources and limiting local political control. Its effects differed across regions and continue to shape many societies." + tip(level);
-      }
-
-      if (has(q, ["history", "historian", "past events"])) {
-        return "History is the study of people and events of the past. Historians examine sources such as documents, photographs, objects, and oral accounts. They compare evidence to understand what happened, why it happened, and how it affected people." + tip(level);
-      }
-
-      return "Let's explore History! I can explain Ancient Egypt, the transatlantic slave trade, the American Revolution, World War I, World War II, Ghana's independence, colonialism, and the Industrial Revolution. Ask about a particular event, person, place, or time period." + tip(level);
+      return "History helps us understand past people, civilizations, events, and changes over time. I can help you study ancient civilizations, African history, American history, world wars, independence movements, and important historical events.\n\nAsk a specific question about a person, place, or event.";
     }
 
     // GEOGRAPHY
     if (s.includes("geography")) {
-      if (has(q, ["continents", "continent"])) {
-        return "The seven commonly recognized continents are Africa, Antarctica, Asia, Europe, North America, South America, and Australia. Some educational traditions group continents differently." + tip(level);
+      if (q.includes("continent")) {
+        return "The seven commonly recognized continents are Africa, Antarctica, Asia, Europe, North America, South America, and Australia. Some models group Europe and Asia together or use a different continent count.";
       }
 
-      if (has(q, ["largest ocean", "biggest ocean", "oceans"])) {
-        return "The Pacific Ocean is the largest ocean on Earth. The five commonly named oceans are the Pacific, Atlantic, Indian, Southern, and Arctic Oceans." + tip(level);
+      if (q.includes("ocean")) {
+        return "The five commonly recognized oceans are the Pacific, Atlantic, Indian, Southern, and Arctic Oceans. The Pacific is the largest.";
       }
 
-      if (has(q, ["equator", "hemisphere"])) {
-        return "The Equator is an imaginary line at 0 degrees latitude. It circles Earth and divides it into the Northern and Southern Hemispheres. The Equator receives strong sunlight throughout the year." + tip(level);
+      if (q.includes("capital of")) {
+        const capitals = [
+          { keys: ["ghana"], answer: "The capital of Ghana is Accra." },
+          { keys: ["united states", "usa", "america"], answer: "The capital of the United States is Washington, D.C." },
+          { keys: ["united kingdom", "uk", "england"], answer: "The capital of the United Kingdom is London. London is also the capital of England." },
+          { keys: ["nigeria"], answer: "The capital of Nigeria is Abuja." },
+          { keys: ["kenya"], answer: "The capital of Kenya is Nairobi." },
+          { keys: ["france"], answer: "The capital of France is Paris." },
+          { keys: ["japan"], answer: "The capital of Japan is Tokyo." },
+          { keys: ["canada"], answer: "The capital of Canada is Ottawa." },
+          { keys: ["australia"], answer: "The capital of Australia is Canberra." },
+          { keys: ["india"], answer: "The capital of India is New Delhi." },
+          { keys: ["china"], answer: "The capital of China is Beijing." },
+          { keys: ["south africa"], answer: "South Africa has three capital cities with different government roles: Pretoria (executive), Cape Town (legislative), and Bloemfontein (judicial, traditionally)." }
+        ];
+
+        for (const item of capitals) {
+          if (item.keys.some(key => q.includes(key))) {
+            return item.answer;
+          }
+        }
+
+        return "A capital city is an important city where a country's national government is based. Please tell me the country whose capital you want to know.";
       }
 
-      if (has(q, ["latitude", "longitude", "coordinates"])) {
-        return "Latitude measures how far north or south a location is from the Equator. Longitude measures how far east or west it is from the Prime Meridian. Together, they help identify locations on Earth." + tip(level);
+      if (q.includes("equator")) {
+        return "The Equator is an imaginary line around the middle of Earth. It divides Earth into the Northern Hemisphere and Southern Hemisphere. Its latitude is 0 degrees.";
       }
 
-      if (has(q, ["weather", "climate"])) {
-        return "Weather describes atmospheric conditions over a short period, such as today's rain or temperature. Climate describes the usual patterns of weather in a place over many years." + tip(level);
+      if (q.includes("weather") || q.includes("climate")) {
+        return "Weather describes atmospheric conditions over a short time, such as today's rain or temperature. Climate describes the usual weather patterns of a place over a long period, often 30 years or more.";
       }
 
-      if (has(q, ["river", "rivers"])) {
-        return "A river is a natural flow of water moving through a channel. Rivers may flow into other rivers, lakes, or seas. They provide water, support farming and ecosystems, and can shape land through erosion." + tip(level);
+      if (q.includes("map")) {
+        return "A map is a representation of all or part of Earth's surface. Maps may show roads, borders, mountains, rivers, population, or climate. A map key explains the symbols used, and a scale helps compare map distances with real distances.";
       }
 
-      if (has(q, ["mountain", "mountains"])) {
-        return "A mountain is a raised part of Earth's surface that rises high above its surroundings. Mountains can form when tectonic plates collide, when Earth's crust shifts, or through volcanic activity." + tip(level);
+      if (q.includes("river")) {
+        return "A river is a natural flow of water that moves through a channel toward another river, a lake, or an ocean. Rivers provide water for people, plants, animals, farming, and transportation.";
       }
 
-      if (has(q, ["ghana", "accra"])) {
-        return "Ghana is a country in West Africa. Its capital is Accra, its official language is English, and it gained independence on March 6, 1957. Ghana borders Côte d'Ivoire, Burkina Faso, and Togo." + tip(level);
-      }
-
-      if (has(q, ["map", "maps", "map scale", "direction"])) {
-        return "A map represents all or part of Earth's surface. A map key explains symbols, a scale compares map distance with real distance, and a compass rose shows directions. Different maps show roads, physical features, populations, or political boundaries." + tip(level);
-      }
-
-      if (has(q, ["volcano", "earthquake", "tectonic plates"])) {
-        return "Earth's outer shell is divided into tectonic plates that move slowly. Their movement can form mountains, trigger earthquakes, and contribute to volcanic activity. These processes continually change Earth's surface." + tip(level);
-      }
-
-      if (has(q, ["desert", "forest", "landform", "plain", "plateau"])) {
-        return "Landforms are natural features of Earth's surface. Examples include mountains, valleys, plains, and plateaus. Deserts receive very little precipitation, while forests contain many trees and support diverse wildlife." + tip(level);
-      }
-
-      if (has(q, ["population", "migration", "urbanization"])) {
-        return "Population geography studies where people live and how populations change. Migration is the movement of people from one place to another. Urbanization is the growth of towns and cities as people move into urban areas." + tip(level);
-      }
-
-      return "Let's explore Geography! I can explain continents, oceans, maps, latitude, longitude, the Equator, weather, climate, rivers, mountains, Ghana, volcanoes, landforms, and population. Ask about a place or geographical process for a clearer explanation." + tip(level);
+      return "Geography is the study of places, people, environments, and Earth's features. I can help with continents, oceans, countries, capitals, maps, rivers, mountains, climate, weather, and landforms.\n\nAsk a specific geography question to get started.";
     }
 
     // SOCIAL STUDIES
     if (s.includes("social")) {
-      if (has(q, ["democracy", "election", "voting"])) {
-        return "Democracy is a system of government in which people have a role in political decision-making, often by voting for representatives. Democratic systems rely on laws, participation, rights, and accountability." + tip(level);
+      if (q.includes("democracy")) {
+        return "Democracy is a system of government in which people have a role in making political decisions, often by voting for representatives. Fair elections, participation, and the rule of law are important democratic principles.";
       }
 
-      if (has(q, ["citizenship", "citizen", "responsibilities of citizens"])) {
-        return "Citizenship is membership in a country or political community. Citizens have rights and responsibilities. These may include obeying laws, respecting others, participating in community life, and voting when eligible." + tip(level);
+      if (q.includes("government")) {
+        return "Government is the system or group of people responsible for making and carrying out public decisions and laws.\n\nIn the United States, the federal government has three branches:\n• Legislative: makes laws.\n• Executive: carries out laws.\n• Judicial: interprets laws.";
       }
 
-      if (has(q, ["community", "communities"])) {
-        return "A community is a group of people connected by a place, interests, or relationships. Families, schools, neighbourhoods, and organizations can all form communities. Members can work together to solve problems and meet shared needs." + tip(level);
+      if (q.includes("citizen") || q.includes("citizenship")) {
+        return "Citizenship is membership in a country or community, with rights and responsibilities defined by its laws. Responsibilities may include obeying laws, respecting others, and participating in community life.";
       }
 
-      if (has(q, ["culture", "tradition", "customs"])) {
-        return "Culture includes the language, customs, beliefs, arts, food, and traditions shared by a group of people. Culture can change over time, and people within the same community may have different traditions." + tip(level);
+      if (q.includes("culture")) {
+        return "Culture includes the shared customs, language, beliefs, arts, food, traditions, and ways of life of a group of people. Cultures can change over time and influence one another.";
       }
 
-      if (has(q, ["government", "president", "parliament"])) {
-        return "A government organizes a country or community. Its responsibilities can include making and enforcing laws, providing public services, protecting rights, and managing public resources. The structure of government differs among countries." + tip(level);
+      if (q.includes("community")) {
+        return "A community is a group of people who live in the same area or share interests, experiences, or goals. People can support their communities by helping others, respecting differences, and taking care of shared spaces.";
       }
 
-      if (has(q, ["human rights", "rights of children", "children's rights"])) {
-        return "Human rights are basic rights and freedoms that belong to all people. Examples include the right to life, education, and freedom from torture. Children's rights also recognize children's need for protection, development, and care." + tip(level);
+      if (q.includes("rights")) {
+        return "Rights are freedoms or protections that people are entitled to under laws or recognized principles. Examples in the United States include freedom of speech and freedom of religion, subject to applicable laws and limits.";
       }
 
-      if (has(q, ["family", "family roles"])) {
-        return "A family is a group of people connected through relationships such as birth, marriage, adoption, or care. Families can provide support, teach values, share responsibilities, and help members meet their needs." + tip(level);
+      if (q.includes("economy") || q.includes("economics")) {
+        return "Economics studies how people and societies use limited resources to meet their needs and wants. Important ideas include goods, services, supply, demand, production, and trade.";
       }
 
-      if (has(q, ["environment", "environmental protection", "sanitation"])) {
-        return "A healthy environment supports people, plants, and animals. Communities can protect it by disposing of waste properly, keeping water sources clean, planting trees, reducing pollution, and conserving resources." + tip(level);
+      if (q.includes("resources")) {
+        return "Resources are things people use to meet needs and wants. Natural resources include water, soil, and minerals. Human resources are people's skills and work. Capital resources include tools, buildings, and machinery.";
       }
 
-      if (has(q, ["conflict", "conflict resolution", "peace"])) {
-        return "Conflict happens when people disagree or have competing needs. Peaceful conflict resolution includes listening carefully, respecting different views, explaining concerns calmly, finding common ground, and agreeing on a fair solution." + tip(level);
-      }
-
-      if (has(q, ["resources", "natural resources", "economic activity"])) {
-        return "Resources are things people use to meet their needs. Natural resources include water, soil, forests, and minerals. People can use resources for farming, building, transport, and industry, but responsible management helps protect them for the future." + tip(level);
-      }
-
-      return "Let's explore Social Studies! I can explain democracy, citizenship, government, communities, culture, human rights, families, environmental protection, conflict resolution, and resources. Ask about a particular topic for a clear explanation." + tip(level);
+      return "Social Studies helps us understand people, communities, government, citizenship, culture, economics, and how societies work.\n\nAsk a specific question, such as 'What is democracy?' or 'What are the three branches of the U.S. government?'";
     }
 
-    // General fallback for any subject
-    return "Thank you for your question about " + subject + ". I can explain many common school topics using built-in lessons, but I do not yet have an answer for every possible question. Try asking about a specific topic, or give an example of what you are studying. A connected AI service will allow Kaakyire to answer a much wider range of questions." + tip(level);
+    // No subject-specific match
+    return "Welcome to Kaakyire Learning AI!\n\nI can help with Mathematics, English, Science, History, Geography, and Social Studies. Please choose the correct subject and ask a clear question.\n\nFor example:\n• Mathematics: What is 12 × 8?\n• English: What is a noun?\n• Science: What is photosynthesis?\n• History: What was the American Revolution?\n• Geography: What are the seven continents?\n• Social Studies: What is democracy?\n\nI will explain the answer in a way that supports learning.";
   }
 
-  // Small helper for matching topic words.
-  function has(text, words) {
-    return words.some(function (word) {
-      return text.includes(word);
-    });
+  // ==========================================
+  // MATHEMATICS
+  // ==========================================
+
+  function getMathAnswer(question, level) {
+    const q = question.toLowerCase().trim();
+    const calculation = solveMath(question);
+
+    if (calculation !== null) {
+      return calculation;
+    }
+
+    if (q.includes("fraction")) {
+      return "A fraction represents part of a whole. It has a numerator on top and a denominator on the bottom.\n\nExample: 3/4 means three out of four equal parts.\n\nTo add fractions with the same denominator, add the numerators and keep the denominator:\n1/4 + 2/4 = 3/4.";
+    }
+
+    if (q.includes("percentage") || q.includes("percent")) {
+      return "A percentage means a number out of 100.\n\nTo find a percentage of a number, multiply the number by the percentage written as a decimal.\n\nExample: 20% of 50 = 0.20 × 50 = 10.\n\nTry asking: What is 20% of 50?";
+    }
+
+    if (q.includes("perimeter")) {
+      return "Perimeter is the total distance around the outside of a shape.\n\nFor a rectangle:\nPerimeter = 2 × (length + width)\n\nExample: length = 6 cm and width = 4 cm.\nPerimeter = 2 × (6 + 4) = 20 cm.";
+    }
+
+    if (q.includes("area")) {
+      return "Area measures the space inside a flat shape.\n\nRectangle: area = length × width.\n\nExample: a rectangle is 6 cm long and 4 cm wide.\nArea = 6 × 4 = 24 square centimeters (cm²).";
+    }
+
+    if (q.includes("mean") || q.includes("average")) {
+      return "To find the mean (average):\n\n1. Add all the numbers.\n2. Divide the total by how many numbers there are.\n\nExample: 2, 4, and 6.\nMean = (2 + 4 + 6) ÷ 3 = 12 ÷ 3 = 4.";
+    }
+
+    if (q.includes("median")) {
+      return "The median is the middle number when numbers are arranged in order.\n\nExample: 3, 5, 8. The median is 5.\n\nIf there are two middle numbers, add them and divide by 2.";
+    }
+
+    if (q.includes("mode")) {
+      return "The mode is the number that appears most often in a set.\n\nExample: 2, 3, 3, 4, 5. The mode is 3 because it appears more often than the other numbers.";
+    }
+
+    if (q.includes("prime number")) {
+      return "A prime number is a whole number greater than 1 that has exactly two positive factors: 1 and itself.\n\nExamples: 2, 3, 5, 7, 11, and 13.\n\nThe number 1 is not prime.";
+    }
+
+    if (q.includes("multiplication") || q.includes("multiply")) {
+      return "Multiplication is repeated addition.\n\nExample: 4 × 3 means 4 groups of 3.\n3 + 3 + 3 + 3 = 12, so 4 × 3 = 12.\n\nYou can ask me to solve a specific multiplication problem.";
+    }
+
+    if (q.includes("division") || q.includes("divide")) {
+      return "Division separates a quantity into equal groups.\n\nExample: 12 ÷ 3 = 4 because 12 items shared equally among 3 groups gives 4 items per group.\n\nYou can ask me to solve a specific division problem.";
+    }
+
+    if (q.includes("equation") || q.includes("solve for")) {
+      const equation = solveLinearEquation(question);
+      if (equation !== null) return equation;
+
+      return "An equation states that two expressions are equal.\n\nExample: x + 3 = 7.\nSubtract 3 from both sides:\nx = 7 − 3 = 4.\n\nTry asking: Solve x + 3 = 7.";
+    }
+
+    if (q.includes("decimal")) {
+      return "A decimal uses a decimal point to show parts of a whole.\n\nExample: 0.5 means five tenths, which is equal to 1/2 or 50%.\n\nWhen adding decimals, line up the decimal points.";
+    }
+
+    if (q.includes("round")) {
+      return "To round a number, look at the digit immediately to the right of the place you want to round to.\n\nIf that digit is 5 or greater, round up. If it is less than 5, keep the rounding digit the same.\n\nExample: 47 rounded to the nearest ten is 50.";
+    }
+
+    return "Let's work on Mathematics together!\n\nI can help with arithmetic, multiplication, division, fractions, percentages, decimals, area, perimeter, averages, and simple equations.\n\nType a question such as:\n• What is 12 × 8?\n• What is 20% of 50?\n• What is 25 + 17?\n• What is 12 divided by 3?\n• Solve x + 3 = 7.\n\nI will show the steps when I can.";
   }
 
-  // MATHEMATICS CALCULATOR
+  // Safely solve basic arithmetic without executing arbitrary code.
   function solveMath(question) {
-    let text = question
-      .toLowerCase()
+    let text = String(question).toLowerCase().trim();
+
+    // Convert common words and symbols to arithmetic operators.
+    text = text
       .replace(/,/g, "")
       .replace(/[×✕]/g, "*")
       .replace(/[÷]/g, "/")
+      .replace(/[−–—]/g, "-")
       .replace(/\bmultiplied by\b/g, "*")
-      .replace(/\bdivided by\b/g, "/")
       .replace(/\btimes\b/g, "*")
+      .replace(/\bdivided by\b/g, "/")
+      .replace(/\bdivided into\b/g, "/")
       .replace(/\bplus\b/g, "+")
       .replace(/\bminus\b/g, "-")
-      .replace(/\bwhat is\b/g, "")
-      .replace(/\bcalculate\b/g, "")
-      .replace(/[?]/g, "")
+      .replace(/\bnegative\b/g, "-")
+      .replace(/\badded to\b/g, "+")
+      .replace(/\bsubtract\b/g, "-")
+      .replace(/\bfrom\b/g, " from ")
+      .replace(/(\d)\s*x\s*(\d)/g, "$1 * $2")
+      .replace(/\bwhat is\b/g, " ")
+      .replace(/\bcalculate\b/g, " ")
+      .replace(/\bsolve\b/g, " ")
+      .replace(/\bplease\b/g, " ")
+      .replace(/[?=]/g, " ")
       .trim();
 
-    // Convert "12 x 8" into "12 * 8".
-    text = text.replace(/(\d)\s*x\s*(\d)/g, "$1 * $2");
-
-    // Percentage: 20% of 50
-    const percentage = text.match(
-      /(-?\d+(?:\.\d+)?)\s*%\s*of\s*(-?\d+(?:\.\d+)?)/
+    // Handle percentages such as "20% of 50".
+    const percentMatch = text.match(
+      /(-?\d+(?:\.\d+)?)\s*%\s*(?:of\s*)?(-?\d+(?:\.\d+)?)/
     );
 
-    if (percentage) {
-      const percent = Number(percentage[1]);
-      const number = Number(percentage[2]);
-      const result = (percent / 100) * number;
+    if (percentMatch) {
+      const percentage = Number(percentMatch[1]);
+      const number = Number(percentMatch[2]);
+      const result = (percentage / 100) * number;
 
-      return percent + "% of " + number + " = " + formatNumber(result) +
-        "\n\nStep 1: Change " + percent + "% to a decimal: " +
-        formatNumber(percent / 100) + ".\n" +
-        "Step 2: Multiply " + number + " by " +
-        formatNumber(percent / 100) + ".\n" +
-        "Step 3: The answer is " + formatNumber(result) + ".";
+      return (
+        "Let's solve it step by step.\n\n" +
+        percentage + "% of " + number + " means:\n" +
+        percentage + " ÷ 100 × " + number + "\n" +
+        "= " + formatNumber(percentage / 100) +
+        " × " + formatNumber(number) + "\n" +
+        "= " + formatNumber(result) + "\n\n" +
+        "Answer: " + formatNumber(result)
+      );
     }
 
-    // Simple linear equations, such as 2x + 3 = 7.
-    const equation = text.match(
-      /^\s*(-?\d*\.?\d*)\s*x\s*([+-]\s*\d+(?:\.\d+)?)?\s*=\s*(-?\d+(?:\.\d+)?)\s*$/i
+    // Remove common question words left after normalization.
+    text = text
+      .replace(/\bhow much is\b/g, " ")
+      .replace(/\bwhat does\b/g, " ")
+      .replace(/\bequal to\b/g, " ")
+      .replace(/\banswer\b/g, " ")
+      .replace(/\bthe\b/g, " ")
+      .replace(/\bof\b/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    // Find a basic arithmetic expression in the question.
+    const expressionMatch = text.match(
+      /-?\d+(?:\.\d+)?(?:\s*[\+\-*/]\s*-?\d+(?:\.\d+)?|\s*[\+\-*/]\s*\(\s*-?\d+(?:\.\d+)?(?:\s*[\+\-*/]\s*-?\d+(?:\.\d+)?)*\s*\))+(?:\s*[\+\-*/]\s*-?\d+(?:\.\d+)?)*/
     );
 
-    if (equation) {
-      let aText = equation[1];
-      if (aText === "" || aText === "+") aText = "1";
-      if (aText === "-") aText = "-1";
+    let expression = expressionMatch ? expressionMatch[0] : "";
 
-      const a = Number(aText);
-      const b = equation[2]
-        ? Number(equation[2].replace(/\s/g, ""))
-        : 0;
-      const c = Number(equation[3]);
-
-      if (a === 0) {
-        return "The coefficient of x cannot be zero for this simple equation solver. Please check the equation.";
-      }
-
-      if ([a, b, c].every(Number.isFinite)) {
-        const x = (c - b) / a;
-
-        return "Let's solve the equation step by step.\n\n" +
-          "Starting equation: " + a + "x " +
-          (b >= 0 ? "+ " + b : "- " + Math.abs(b)) +
-          " = " + c + "\n" +
-          "Step 1: Move the constant " + b +
-          " to the other side by using the opposite operation.\n" +
-          "Step 2: Divide both sides by " + a + ".\n" +
-          "Answer: x = " + formatNumber(x) + ".";
-      }
+    // Also accept a single number when a learner asks to calculate it.
+    if (!expression && /^-?\d+(?:\.\d+)?$/.test(text)) {
+      expression = text;
     }
 
-    // Basic arithmetic with two numbers.
-    const match = text.match(
-      /(-?\d+(?:\.\d+)?)\s*([+\-*/])\s*(-?\d+(?:\.\d+)?)/
+    if (!expression) {
+      // A direct expression like "12 * 8" may be all that's needed.
+      const simple = text.match(
+        /-?\d+(?:\.\d+)?\s*[\+\-*/]\s*-?\d+(?:\.\d+)?/
+      );
+      if (simple) expression = simple[0];
+    }
+
+    if (!expression) return null;
+
+    // Accept only numbers, arithmetic operators, spaces, and parentheses.
+    if (!/^[\d\s.+*/()\-]+$/.test(expression)) {
+      return null;
+    }
+
+    try {
+      const result = evaluateExpression(expression);
+
+      if (!Number.isFinite(result)) {
+        return "That calculation does not produce a finite number. Please check the numbers and try again.";
+      }
+
+      const formatted = formatNumber(result);
+      return (
+        "Let's solve it step by step.\n\n" +
+        "Calculation: " + expression + "\n\n" +
+        "Answer: " + formatted + "\n\n" +
+        "Keep practicing! Understanding each step will help you solve similar problems."
+      );
+    } catch (error) {
+      return null;
+    }
+  }
+
+  // Arithmetic parser: supports +, -, *, /, and parentheses.
+  function evaluateExpression(expression) {
+    const tokens = expression.match(
+      /\d+(?:\.\d+)?|[()+\-*/]/g
     );
 
-    if (!match) return null;
+    if (!tokens || tokens.join("") !== expression.replace(/\s+/g, "")) {
+      throw new Error("Invalid arithmetic expression");
+    }
 
-    const a = Number(match[1]);
-    const operator = match[2];
-    const b = Number(match[3]);
-    let result;
+    let index = 0;
 
-    switch (operator) {
-      case "+":
-        result = a + b;
-        break;
-      case "-":
-        result = a - b;
-        break;
-      case "*":
-        result = a * b;
-        break;
-      case "/":
-        if (b === 0) {
-          return "You cannot divide by zero. Please try another calculation.";
+    function parseExpression() {
+      let value = parseTerm();
+
+      while (tokens[index] === "+" || tokens[index] === "-") {
+        const operator = tokens[index++];
+        const right = parseTerm();
+        value = operator === "+" ? value + right : value - right;
+      }
+
+      return value;
+    }
+
+    function parseTerm() {
+      let value = parseFactor();
+
+      while (tokens[index] === "*" || tokens[index] === "/") {
+        const operator = tokens[index++];
+        const right = parseFactor();
+
+        if (operator === "/" && right === 0) {
+          throw new Error("Cannot divide by zero");
         }
-        result = a / b;
-        break;
-      default:
-        return null;
+
+        value = operator === "*" ? value * right : value / right;
+      }
+
+      return value;
     }
 
-    if (!Number.isFinite(result)) return null;
+    function parseFactor() {
+      const token = tokens[index];
 
-    return "Let's solve " + a + " " + operator + " " + b + ".\n\n" +
-      "Step 1: Identify the numbers: " + a + " and " + b + ".\n" +
-      "Step 2: Apply the operation " + operator + ".\n" +
-      "Step 3: Calculate the result.\n\n" +
-      "Answer: " + formatNumber(result) + ".";
+      if (token === "+") {
+        index++;
+        return parseFactor();
+      }
+
+      if (token === "-") {
+        index++;
+        return -parseFactor();
+      }
+
+      if (token === "(") {
+        index++;
+        const value = parseExpression();
+
+        if (tokens[index] !== ")") {
+          throw new Error("Missing closing parenthesis");
+        }
+
+        index++;
+        return value;
+      }
+
+      if (token !== undefined && /^\d+(?:\.\d+)?$/.test(token)) {
+        index++;
+        return Number(token);
+      }
+
+      throw new Error("Invalid number");
+    }
+
+    const result = parseExpression();
+
+    if (index !== tokens.length) {
+      throw new Error("Unexpected input");
+    }
+
+    return result;
   }
 
   function formatNumber(number) {
-    return Number.isFinite(number)
-      ? String(Number(number.toFixed(8)))
-      : String(number);
+    if (Number.isInteger(number)) return String(number);
+
+    return String(Number(number.toFixed(8)));
   }
 
-  function tip(level) {
-    if (level === "Easy") {
-      return "\n\nStudy tip: Try explaining this idea in your own words.";
+  // Solve simple equations such as x + 3 = 7 and 2x = 10.
+  function solveLinearEquation(question) {
+    let text = question.toLowerCase().replace(/\s+/g, "");
+    text = text.replace(/^solve/, "").replace(/^for/, "");
+
+    const match = text.match(
+      /^([+-]?\d*\.?\d*)x([+-]\d+(?:\.\d+)?)?=([+-]?\d+(?:\.\d+)?)$/
+    );
+
+    if (match) {
+      let coefficient = match[1];
+
+      if (coefficient === "" || coefficient === "+") coefficient = "1";
+      if (coefficient === "-") coefficient = "-1";
+
+      const a = Number(coefficient);
+      const b = Number(match[2] || 0);
+      const c = Number(match[3]);
+
+      if (a === 0) return null;
+
+      const x = (c - b) / a;
+
+      return (
+        "Let's solve the equation step by step.\n\n" +
+        "Equation: " + question + "\n" +
+        "Move the number without x to the other side, then divide by the coefficient of x.\n\n" +
+        "x = (" + formatNumber(c) + " − (" + formatNumber(b) + ")) ÷ " + formatNumber(a) + "\n" +
+        "x = " + formatNumber(x) + "\n\n" +
+        "Answer: x = " + formatNumber(x)
+      );
     }
 
-    if (level === "Hard") {
-      return "\n\nChallenge: Think of another example and explain why it works.";
+    const multiplication = text.match(
+      /^([+-]?\d+(?:\.\d*)?)x=([+-]?\d+(?:\.\d*)?)$/
+    );
+
+    if (multiplication) {
+      const a = Number(multiplication[1]);
+      const b = Number(multiplication[2]);
+
+      if (a === 0) return null;
+
+      const x = b / a;
+
+      return (
+        "Let's solve the equation step by step.\n\n" +
+        "Equation: " + question + "\n" +
+        "Divide both sides by " + formatNumber(a) + ".\n\n" +
+        "x = " + formatNumber(b) + " ÷ " + formatNumber(a) + "\n" +
+        "x = " + formatNumber(x) + "\n\n" +
+        "Answer: x = " + formatNumber(x)
+      );
     }
 
-    return "\n\nStudy tip: Write down the main idea and one example.";
+    return null;
   }
 });
