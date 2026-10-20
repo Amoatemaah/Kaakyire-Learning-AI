@@ -1,7 +1,4 @@
-
-
 "use strict";
-
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("question-form");
   const subjectInput = document.getElementById("subject");
